@@ -16,6 +16,9 @@ RUN go mod download
 # Copy source code
 COPY . .
 
+# Copy web files
+COPY web/ ./web/
+
 # Build the application
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o bin/api ./cmd/api/main.go
 
@@ -29,6 +32,9 @@ WORKDIR /root/
 
 # Copy the binary from builder
 COPY --from=builder /app/bin/api .
+
+# Copy web files for serving static content
+COPY --from=builder /app/web ./web
 
 # Expose port
 EXPOSE 8080

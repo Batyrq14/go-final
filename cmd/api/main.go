@@ -127,6 +127,26 @@ func setupRouter(
 	router.Use(middleware.RequestLogging())
 	router.Use(middleware.RateLimit())
 
+	// Serve static files and HTML
+	// Try multiple paths to work in both local and Docker environments
+	webPaths := []string{"./web", "web", "/root/web"}
+	var webPath string
+	for _, path := range webPaths {
+		if _, err := os.Stat(path + "/index.html"); err == nil {
+			webPath = path
+			break
+		}
+	}
+	
+	if webPath != "" {
+		router.Static("/static", webPath+"/static")
+		router.GET("/", func(c *gin.Context) {
+			c.File(webPath + "/index.html")
+		})
+	} else {
+		log.Println("Warning: web directory not found, HTML frontend will not be available")
+	}
+
 	// Health check
 	router.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
