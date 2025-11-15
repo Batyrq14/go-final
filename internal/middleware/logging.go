@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -24,17 +25,15 @@ func RequestLogging() gin.HandlerFunc {
 		duration := time.Since(start)
 
 		// Log request
-		gin.DefaultWriter.Write([]byte(
-			gin.LogFormatterParams{
-				Request:    c.Request,
-				TimeStamp:  time.Now(),
-				Latency:    duration,
-				ClientIP:   c.ClientIP(),
-				Method:     c.Request.Method,
-				StatusCode: c.Writer.Status(),
-				Path:       c.Request.URL.Path,
-			}.String(),
-		))
+		logMsg := fmt.Sprintf("[%s] %s %s %d %v %s\n",
+			time.Now().Format("2006/01/02 - 15:04:05"),
+			c.Request.Method,
+			c.Request.URL.Path,
+			c.Writer.Status(),
+			duration,
+			c.ClientIP(),
+		)
+		gin.DefaultWriter.Write([]byte(logMsg))
 	}
 }
 

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 	"qasynda/internal/models"
 	"qasynda/internal/service"
@@ -72,16 +73,15 @@ func (h *ServiceHandler) GetByID(c *gin.Context) {
 		return
 	}
 
-	service, err := h.serviceService.GetByID(c.Request.Context(), id)
+	svc, err := h.serviceService.GetByID(c.Request.Context(), id)
 	if err != nil {
-		if err == service.ErrServiceNotFound {
+		if errors.Is(err, service.ErrServiceNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
 		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get service"})
 		return
 	}
-
-	c.JSON(http.StatusOK, service)
+	c.JSON(http.StatusOK, svc)
 }
 

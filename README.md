@@ -30,8 +30,7 @@ qasynda/
 ├── migrations/                  # Database migrations (golang-migrate)
 ├── pkg/                         # Shared utilities
 │   ├── auth/                    # JWT utilities
-│   ├── validator/               # Input validation
-│   └── logger/                  # Structured logging
+│   └── validator/               # Input validation
 ├── tests/                       # Test files
 ├── .env.example                 # Environment variables template
 ├── go.mod
@@ -41,9 +40,14 @@ qasynda/
 
 ## Prerequisites
 
+**Option 1: Local Development**
 - Go 1.21 or higher
 - PostgreSQL 12 or higher
 - golang-migrate CLI tool (for database migrations)
+
+**Option 2: Docker (Recommended)**
+- Docker 20.10 or higher
+- Docker Compose 2.0 or higher
 
 ## Setup Instructions
 
@@ -139,6 +143,103 @@ The server will start on `http://localhost:8080`
 ```bash
 go build -o bin/api cmd/api/main.go
 ./bin/api
+```
+
+### 7. Docker Setup (Recommended)
+
+#### Using Docker Compose (Production)
+
+Build and run everything with Docker Compose:
+
+```bash
+# Build and start all services (API + PostgreSQL + Migrations)
+docker-compose up -d
+
+# View logs
+docker-compose logs -f api
+
+# Stop all services
+docker-compose down
+
+# Stop and remove volumes (clean slate)
+docker-compose down -v
+```
+
+This will:
+- Start PostgreSQL database
+- Run database migrations automatically
+- Build and start the API server
+
+#### Using Docker Compose (Development with Hot Reload)
+
+For development with automatic code reloading:
+
+```bash
+# Start services with hot reload
+docker-compose -f docker-compose.dev.yml up
+
+# Or run in background
+docker-compose -f docker-compose.dev.yml up -d
+```
+
+The development setup includes:
+- Hot reload using Air (automatically rebuilds on code changes)
+- Volume mounting for live code updates
+- Development-friendly environment variables
+
+#### Manual Docker Build
+
+```bash
+# Build the Docker image
+docker build -t qasynda-api .
+
+# Run the container
+docker run -p 8080:8080 \
+  -e DATABASE_URL="postgres://postgres:postgres@host.docker.internal:5432/qasynda?sslmode=disable" \
+  -e JWT_SECRET="your-secret-key" \
+  qasynda-api
+```
+
+#### Environment Variables for Docker
+
+Create a `.env` file in the project root (optional, defaults are used):
+
+```env
+JWT_SECRET=your-secret-key-change-in-production
+JWT_EXPIRATION=24h
+LOG_LEVEL=info
+```
+
+Docker Compose will automatically use these variables.
+
+#### Quick Commands (Using Makefile)
+
+For convenience, use the Makefile:
+
+```bash
+# Show all available commands
+make help
+
+# Production
+make build      # Build Docker images
+make up         # Start all services
+make down       # Stop all services
+make logs       # View API logs
+make clean      # Stop and remove volumes
+
+# Development
+make dev-up     # Start dev environment with hot reload
+make dev-down   # Stop dev environment
+make dev-logs   # View dev logs
+
+# Database
+make migrate-up   # Run migrations
+make migrate-down # Rollback migrations
+make db-shell     # Access PostgreSQL shell
+
+# Testing
+make test         # Run tests
+make test-coverage # Run tests with coverage
 ```
 
 ## API Documentation
@@ -387,13 +488,18 @@ Key dependencies:
 
 ## Production Considerations
 
-1. **Environment Variables**: Use secure secrets management
+1. **Environment Variables**: Use secure secrets management (Docker secrets, Kubernetes secrets, etc.)
 2. **Database**: Use connection pooling (configured in main.go)
 3. **Logging**: Implement structured logging with proper log levels
 4. **Rate Limiting**: Adjust limits based on traffic
 5. **CORS**: Configure allowed origins for production
-6. **HTTPS**: Use TLS in production
+6. **HTTPS**: Use TLS in production (consider using a reverse proxy like nginx)
 7. **Monitoring**: Add health checks and metrics
+8. **Docker**: Use multi-stage builds for smaller image sizes (already implemented)
+9. **Security**: 
+   - Never commit `.env` files with real secrets
+   - Use Docker secrets or environment variable injection
+   - Regularly update base images for security patches
 
 ## License
 
