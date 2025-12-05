@@ -1,0 +1,125 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "github.com/Batyrq14/go-final/shared/proto";
+
+// User Service
+service UserService {
+  rpc Register(RegisterRequest) returns (AuthResponse);
+  rpc Login(LoginRequest) returns (AuthResponse);
+  rpc ValidateToken(ValidateTokenRequest) returns (UserResponse);
+  rpc GetUser(GetUserRequest) returns (UserResponse);
+}
+
+message RegisterRequest {
+  string email = 1;
+  string password = 2;
+  string full_name = 3;
+  string role = 4;
+  string phone = 5;
+}
+
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message ValidateTokenRequest {
+  string token = 1;
+}
+
+message GetUserRequest {
+  string user_id = 1;
+}
+
+message AuthResponse {
+  string token = 1;
+  UserResponse user = 2;
+}
+
+message UserResponse {
+  string id = 1;
+  string email = 2;
+  string full_name = 3;
+  string role = 4;
+  string phone = 5;
+}
+
+// Marketplace Service
+service MarketplaceService {
+  rpc CreateService(CreateServiceRequest) returns (ServiceResponse);
+  rpc GetServices(GetServicesRequest) returns (GetServicesResponse);
+  rpc CreateBooking(CreateBookingRequest) returns (BookingResponse);
+}
+
+message CreateServiceRequest {
+  string user_id = 1;
+  string title = 2;
+  string description = 3;
+  double price = 4;
+  string category = 5;
+}
+
+message ServiceResponse {
+  string id = 1;
+  string title = 2;
+  string description = 3;
+  double price = 4;
+  string provider_id = 5;
+}
+
+message GetServicesRequest {
+  string category = 1;
+}
+
+message GetServicesResponse {
+  repeated ServiceResponse services = 1;
+}
+
+message CreateBookingRequest {
+  string service_id = 1;
+  string user_id = 2;
+  string scheduled_time = 3; // ISO string
+}
+
+message BookingResponse {
+  string id = 1;
+  string status = 2;
+}
+
+// Chat Service
+service ChatService {
+  rpc GetHistory(GetHistoryRequest) returns (GetHistoryResponse);
+  rpc SendMessage(SendMessageRequest) returns (SendMessageResponse);
+}
+
+message GetHistoryRequest {
+  string user_id_1 = 1;
+  string user_id_2 = 2;
+  int32 limit = 3;
+  int32 offset = 4;
+}
+
+message Message {
+  string id = 1;
+  string sender_id = 2;
+  string receiver_id = 3;
+  string content = 4;
+  string timestamp = 5;
+}
+
+message GetHistoryResponse {
+  repeated Message messages = 1;
+}
+
+message SendMessageRequest {
+    string sender_id = 1;
+    string receiver_id = 2;
+    string content = 3;
+}
+
+message SendMessageResponse {
+    string id = 1;
+    string timestamp = 2;
+}

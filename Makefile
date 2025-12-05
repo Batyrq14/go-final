@@ -1,47 +1,31 @@
-.PHONY: help build up down logs clean dev-up dev-down migrate-up migrate-down test
+PROJECT_NAME := qasynda
+PROTO_SRC := shared/proto
+PROTO_OUT := shared/proto
 
-help: ## Show this help message
-	@echo 'Usage: make [target]'
-	@echo ''
-	@echo 'Available targets:'
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-15s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+.PHONY: proto clean docker-up docker-down
 
-build: ## Build Docker images
-	docker-compose build
+proto:
+	protoc --go_out=. --go_opt=paths=source_relative \
+    --go-grpc_out=. --go-grpc_opt=paths=source_relative \
+    $(PROTO_SRC)/*.proto
 
-up: ## Start all services (production)
+tidy:
+	go mod tidy
+
+docker-up:
 	docker-compose up -d
 
-down: ## Stop all services
+docker-down:
 	docker-compose down
 
-logs: ## View API logs
-	docker-compose logs -f api
+run-gateway:
+	go run services/gateway/main.go
 
-clean: ## Stop services and remove volumes
-	docker-compose down -v
+run-user:
+	go run services/user/main.go
 
-dev-up: ## Start development environment with hot reload
-	docker-compose -f docker-compose.dev.yml up
+run-marketplace:
+	go run services/marketplace/main.go
 
-dev-down: ## Stop development environment
-	docker-compose -f docker-compose.dev.yml down
-
-dev-logs: ## View development API logs
-	docker-compose -f docker-compose.dev.yml logs -f api
-
-migrate-up: ## Run database migrations
-	docker-compose run --rm migrate -path /migrations -database "postgres://postgres:postgres@postgres:5432/qasynda?sslmode=disable" up
-
-migrate-down: ## Rollback database migrations
-	docker-compose run --rm migrate -path /migrations -database "postgres://postgres:postgres@postgres:5432/qasynda?sslmode=disable" down
-
-test: ## Run tests
-	go test ./...
-
-test-coverage: ## Run tests with coverage
-	go test -cover ./...
-
-db-shell: ## Access PostgreSQL shell
-	docker-compose exec postgres psql -U postgres -d qasynda
-
+run-chat:
+	go run services/chat/main.go
