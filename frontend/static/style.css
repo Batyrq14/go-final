@@ -754,3 +754,331 @@ button {
     color: var(--text-main);
     margin: 0;
 }
+
+/* ============ ENHANCED UI ANIMATIONS ============ */
+
+/* Stagger Animation for Cards */
+.services-grid .card,
+.providers-grid .card,
+.bookings-grid .card {
+    animation: fadeInUp 0.6s ease-out backwards;
+}
+
+.services-grid .card:nth-child(1) { animation-delay: 0.1s; }
+.services-grid .card:nth-child(2) { animation-delay: 0.2s; }
+.services-grid .card:nth-child(3) { animation-delay: 0.3s; }
+.services-grid .card:nth-child(4) { animation-delay: 0.4s; }
+.services-grid .card:nth-child(5) { animation-delay: 0.5s; }
+.services-grid .card:nth-child(6) { animation-delay: 0.6s; }
+
+.providers-grid .card:nth-child(1) { animation-delay: 0.1s; }
+.providers-grid .card:nth-child(2) { animation-delay: 0.2s; }
+.providers-grid .card:nth-child(3) { animation-delay: 0.3s; }
+.providers-grid .card:nth-child(4) { animation-delay: 0.4s; }
+.providers-grid .card:nth-child(5) { animation-delay: 0.5s; }
+.providers-grid .card:nth-child(6) { animation-delay: 0.6s; }
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Enhanced Card Hover Effects */
+.card {
+    position: relative;
+    overflow: hidden;
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s;
+}
+
+.card:hover::before {
+    left: 100%;
+}
+
+.card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(79, 70, 229, 0.15), 0 0 0 1px rgba(79, 70, 229, 0.1);
+}
+
+/* Glow Effect for Primary Buttons */
+.btn-primary {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn-primary:hover::after {
+    width: 300px;
+    height: 300px;
+}
+
+.btn-primary:hover {
+    box-shadow: 0 8px 25px rgba(79, 70, 229, 0.5), 0 0 20px rgba(236, 72, 153, 0.3);
+}
+
+/* Pulse Animation for Icons */
+.feature-icon {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+/* Gradient Border Effect */
+.feature-card {
+    position: relative;
+    background: white;
+}
+
+.feature-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-md);
+    padding: 2px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.feature-card:hover::after {
+    opacity: 1;
+}
+
+/* Smooth Loading Animation */
+.spinner {
+    position: relative;
+}
+
+.spinner::after {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    border-top-color: var(--secondary);
+    animation: spin 1.5s linear infinite reverse;
+}
+
+/* Floating Animation for Hero */
+.hero-image i {
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+/* Enhanced Input Focus */
+.form-group input:focus,
+.form-group select:focus {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.15), 0 0 0 4px rgba(79, 70, 229, 0.1);
+}
+
+/* Badge Glow Effect */
+.badge {
+    position: relative;
+    transition: all 0.3s;
+}
+
+.badge-success:hover {
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+    transform: scale(1.05);
+}
+
+.badge-primary:hover {
+    box-shadow: 0 0 15px rgba(79, 70, 229, 0.4);
+    transform: scale(1.05);
+}
+
+/* Service Card Icon Animation */
+.service-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    display: inline-block;
+    transition: all 0.3s;
+    color: var(--primary);
+}
+
+.service-card:hover .service-icon {
+    transform: rotate(10deg) scale(1.2);
+    color: var(--secondary);
+}
+
+/* Provider Card Enhanced */
+.provider-card {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.provider-card:hover {
+    border-color: var(--primary);
+}
+
+.provider-card .btn-primary {
+    position: relative;
+    z-index: 1;
+}
+
+/* Smooth Section Transitions */
+.section {
+    animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Navbar Brand Animation */
+.navbar-brand {
+    transition: all 0.3s;
+}
+
+.navbar-brand:hover {
+    transform: scale(1.05);
+}
+
+/* Profile Avatar Animation */
+.profile-avatar {
+    transition: all 0.3s;
+    animation: scaleIn 0.5s ease-out;
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.profile-avatar:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 25px rgba(79, 70, 229, 0.4);
+}
+
+/* Booking Card Status Animation */
+.booking-card {
+    transition: all 0.3s;
+}
+
+.booking-card:hover {
+    transform: translateX(5px);
+    border-left: 4px solid var(--primary);
+}
+
+/* Search Input Enhanced */
+.search-input-wrapper:hover {
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.1);
+}
+
+/* Dropdown Enhanced Animation */
+.dropdown-content {
+    animation: slideDownFade 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideDownFade {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Alert Animations */
+.alert {
+    animation: slideInRight 0.4s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Empty State Animation */
+.empty-state i {
+    animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Responsive Enhancements */
+@media (max-width: 768px) {
+    .card:hover {
+        transform: translateY(-4px) scale(1.01);
+    }
+    
+    .hero-image {
+        display: none;
+    }
+}

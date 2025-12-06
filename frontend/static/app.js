@@ -145,8 +145,8 @@ function setupForms() {
                     currentUser = data.user;
                     updateUIForLoggedIn();
                     showSection('home');
-                    document.getElementById('registerAlert').innerHTML =
-                        '<div class="alert alert-success">Registration successful!</div>';
+                    showNotification('Registration successful! Welcome to Qasynda!', 'success');
+                    document.getElementById('registerAlert').innerHTML = '';
                 } else {
                     document.getElementById('registerAlert').innerHTML =
                         `<div class="alert alert-error">${data.error || 'Registration failed'}</div>`;
@@ -180,6 +180,7 @@ function setupForms() {
                     currentUser = data.user;
                     updateUIForLoggedIn();
                     showSection('home');
+                    showNotification(`Welcome back, ${currentUser.full_name || currentUser.email}!`, 'success');
                 } else {
                     document.getElementById('loginAlert').innerHTML =
                         `<div class="alert alert-error">${data.error || 'Login failed'}</div>`;
@@ -386,11 +387,11 @@ async function initiateBooking(providerId, providerName) {
         });
 
         if (res.ok) {
-            alert("Booking sent successfully! You can view it in 'My Bookings'.");
+            showNotification("Booking sent successfully! You can view it in 'My Bookings'.", 'success');
             showSection('bookings');
         } else {
             const err = await res.json();
-            alert("Failed to book: " + (err.error || "Unknown error"));
+            showNotification("Failed to book: " + (err.error || "Unknown error"), 'error');
         }
     } catch (e) {
         console.error(e);
@@ -493,10 +494,11 @@ async function updateBookingStatus(bookingId, status) {
         });
 
         if (res.ok) {
+            showNotification(`Booking ${status} successfully!`, 'success');
             loadBookings(); // Reload list
         } else {
             const err = await res.json();
-            alert("Failed to update status: " + (err.error || "Unknown error"));
+            showNotification("Failed to update status: " + (err.error || "Unknown error"), 'error');
         }
     } catch (e) {
         console.error(e);
@@ -619,4 +621,169 @@ document.querySelectorAll('a[href^="#"], button').forEach(btn => {
         }
     });
 });
+
+// ============ ENHANCED UI INTERACTIONS ============
+
+// Add ripple effect to buttons
+function createRipple(event) {
+    const button = event.currentTarget;
+    const circle = document.createElement('span');
+    const diameter = Math.max(button.clientWidth, button.clientHeight);
+    const radius = diameter / 2;
+
+    circle.style.width = circle.style.height = `${diameter}px`;
+    circle.style.left = `${event.clientX - button.offsetLeft - radius}px`;
+    circle.style.top = `${event.clientY - button.offsetTop - radius}px`;
+    circle.classList.add('ripple');
+
+    const ripple = button.getElementsByClassName('ripple')[0];
+    if (ripple) {
+        ripple.remove();
+    }
+
+    button.appendChild(circle);
+}
+
+// Apply ripple to all buttons
+document.querySelectorAll('.btn').forEach(button => {
+    button.addEventListener('click', createRipple);
+});
+
+// Add CSS for ripple effect
+const style = document.createElement('style');
+style.textContent = `
+    .btn {
+        position: relative;
+        overflow: hidden;
+    }
+    .ripple {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.6);
+        transform: scale(0);
+        animation: ripple-animation 0.6s ease-out;
+        pointer-events: none;
+    }
+    @keyframes ripple-animation {
+        to {
+            transform: scale(4);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(style);
+
+// Smooth number counter animation
+function animateValue(element, start, end, duration) {
+    let startTimestamp = null;
+    const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        element.textContent = Math.floor(progress * (end - start) + start);
+        if (progress < 1) {
+            window.requestAnimationFrame(step);
+        }
+    };
+    window.requestAnimationFrame(step);
+}
+
+// Add intersection observer for fade-in animations
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+        }
+    });
+}, observerOptions);
+
+// Observe all cards for scroll animations
+document.addEventListener('DOMContentLoaded', () => {
+    const cards = document.querySelectorAll('.card, .feature-card');
+    cards.forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(30px)';
+        card.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+        observer.observe(card);
+    });
+});
+
+// Add typing effect for hero text (optional enhancement)
+function typeWriter(element, text, speed = 50) {
+    let i = 0;
+    element.textContent = '';
+    function type() {
+        if (i < text.length) {
+            element.textContent += text.charAt(i);
+            i++;
+            setTimeout(type, speed);
+        }
+    }
+    type();
+}
+
+// Add parallax effect to hero section
+window.addEventListener('scroll', () => {
+    const scrolled = window.pageYOffset;
+    const hero = document.querySelector('.hero-image');
+    if (hero) {
+        hero.style.transform = `translateY(${scrolled * 0.3}px)`;
+    }
+});
+
+// Add smooth reveal for sections
+function revealOnScroll() {
+    const sections = document.querySelectorAll('.section');
+    sections.forEach(section => {
+        const sectionTop = section.getBoundingClientRect().top;
+        const windowHeight = window.innerHeight;
+        if (sectionTop < windowHeight - 100) {
+            section.style.opacity = '1';
+            section.style.transform = 'translateY(0)';
+        }
+    });
+}
+
+window.addEventListener('scroll', revealOnScroll);
+
+// Enhanced alert notifications with auto-dismiss
+function showNotification(message, type = 'info', duration = 3000) {
+    const alert = document.createElement('div');
+    alert.className = `alert alert-${type}`;
+    alert.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i> ${message}`;
+    alert.style.position = 'fixed';
+    alert.style.top = '100px';
+    alert.style.right = '20px';
+    alert.style.zIndex = '10000';
+    alert.style.minWidth = '300px';
+    alert.style.animation = 'slideInRight 0.4s ease-out';
+    
+    document.body.appendChild(alert);
+    
+    setTimeout(() => {
+        alert.style.animation = 'slideOutRight 0.4s ease-out';
+        setTimeout(() => alert.remove(), 400);
+    }, duration);
+}
+
+// Add slideOutRight animation
+const slideOutStyle = document.createElement('style');
+slideOutStyle.textContent = `
+    @keyframes slideOutRight {
+        from {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        to {
+            opacity: 0;
+            transform: translateX(100px);
+        }
+    }
+`;
+document.head.appendChild(slideOutStyle);
 
