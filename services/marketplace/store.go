@@ -38,3 +38,31 @@ func (s *Store) CreateBooking(ctx context.Context, booking *Booking) error {
 	_, err := s.db.NamedExecContext(ctx, query, booking)
 	return err
 }
+
+func (s *Store) ListBookings(ctx context.Context, userID string, role string) ([]*Booking, error) {
+	var bookings []*Booking
+	var query string
+	if role == "provider" {
+		query = `SELECT * FROM bookings WHERE provider_id = $1 ORDER BY created_at DESC`
+	} else {
+		query = `SELECT * FROM bookings WHERE client_id = $1 ORDER BY created_at DESC`
+	}
+	err := s.db.SelectContext(ctx, &bookings, query, userID)
+	return bookings, err
+}
+
+func (s *Store) UpdateBookingStatus(ctx context.Context, bookingID string, status string) error {
+	query := `UPDATE bookings SET status = $1, updated_at = NOW() WHERE id = $2`
+	_, err := s.db.ExecContext(ctx, query, status, bookingID)
+	return err
+}
+
+func (s *Store) GetBooking(ctx context.Context, bookingID string) (*Booking, error) {
+	var booking Booking
+	query := `SELECT * FROM bookings WHERE id = $1`
+	err := s.db.GetContext(ctx, &booking, query, bookingID)
+	if err != nil {
+		return nil, err
+	}
+	return &booking, nil
+}

@@ -22,7 +22,6 @@ func NewServer(store *Store) *Server {
 }
 
 func (s *Server) CreateService(ctx context.Context, req *pb.CreateServiceRequest) (*pb.ServiceResponse, error) {
-	// In this simplified version, we treat this as creating a Service Category
 	id := uuid.New()
 	service := &Service{
 		ID:          id,
@@ -80,15 +79,20 @@ func (s *Server) CreateBooking(ctx context.Context, req *pb.CreateBookingRequest
 		return nil, status.Error(codes.InvalidArgument, "invalid scheduled time format (use ISO8601/RFC3339)")
 	}
 
-	// For now we don't validate provider logic deeply, just insert
+	providerID, err := uuid.Parse(req.ProviderId)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid provider id")
+	}
+
 	id := uuid.New()
 	booking := &Booking{
 		ID:            id,
 		ClientID:      clientID,
-		ProviderID:    uuid.Nil, // Placeholder as ProviderID is missing in request
+		ProviderID:    providerID,
 		ServiceID:     serviceID,
 		ScheduledDate: scheduledTime,
 		Status:        "pending",
+		DurationHours: 1.0, // Default duration
 		CreatedAt:     time.Now(),
 		UpdatedAt:     time.Now(),
 	}
@@ -101,5 +105,46 @@ func (s *Server) CreateBooking(ctx context.Context, req *pb.CreateBookingRequest
 	return &pb.BookingResponse{
 		Id:     booking.ID.String(),
 		Status: booking.Status,
+	}, nil
+}
+
+func (s *Server) ListBookings(ctx context.Context, req *pb.ListBookingsRequest) (*pb.ListBookingsResponse, error) {
+	bookings, err := s.store.ListBookings(ctx, req.UserId, req.Role)
+	if err != nil {
+		logger.Error("failed to list bookings", err)
+		return nil, status.Error(codes.Internal, "internal error")
+	}
+
+	var pbBookings []*pb.BookingDetails
+	for _, b := range bookings {
+		// TODO: Fetch Service Title and User Names. For now returning IDs.
+		pbBookings = append(pbBookings, &pb.BookingDetails{
+			Id:             b.ID.String(),
+			ServiceId:      b.ServiceID.String(),
+			ClientId:       b.ClientID.String(),
+			ProviderId:     b.ProviderID.String(),
+			Status:         b.Status,
+			ScheduledTime:  b.ScheduledDate.Format(time.RFC3339),
+			ServiceTitle:   "Service " + b.ServiceID.String(), // Placeholder
+			OtherPartyName: "User " + b.ClientID.String(),     // Placeholder
+		})
+	}
+
+	return &pb.ListBookingsResponse{
+		Bookings: pbBookings,
+	}, nil
+}
+
+func (s *Server) UpdateBookingStatus(ctx context.Context, req *pb.UpdateBookingStatusRequest) (*pb.BookingResponse, error) {
+
+	err := s.store.UpdateBookingStatus(ctx, req.BookingId, req.Status)
+	if err != nil {
+		logger.Error("failed to update booking status", err)
+		return nil, status.Error(codes.Internal, "internal error")
+	}
+
+	return &pb.BookingResponse{
+		Id:     req.BookingId,
+		Status: req.Status,
 	}, nil
 }

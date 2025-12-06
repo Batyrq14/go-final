@@ -201,12 +201,16 @@
                 <p>Find the perfect professional for your needs</p>
             </div>
             <div class="providers-filters">
-                <input type="text" id="providerSearch" placeholder="🔍 Search providers...">
-                <select id="providerFilter">
+                <div class="search-input-wrapper">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="providerSearch" class="modern-input" placeholder="Search professionals...">
+                </div>
+                <select id="providerFilter" class="modern-select">
                     <option value="">All Ratings</option>
-                    <option value="4">⭐ 4+ Stars</option>
-                    <option value="3">⭐ 3+ Stars</option>
+                    <option value="4">4+ Stars</option>
+                    <option value="3">3+ Stars</option>
                 </select>
+                <button class="btn btn-primary search-btn">Search</button>
             </div>
             <div id="providersList" class="loading">
                 <div class="spinner"></div>

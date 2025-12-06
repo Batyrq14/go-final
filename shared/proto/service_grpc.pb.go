@@ -23,18 +23,18 @@ const (
 	UserService_Login_FullMethodName         = "/proto.UserService/Login"
 	UserService_ValidateToken_FullMethodName = "/proto.UserService/ValidateToken"
 	UserService_GetUser_FullMethodName       = "/proto.UserService/GetUser"
+	UserService_ListProviders_FullMethodName = "/proto.UserService/ListProviders"
 )
 
 // UserServiceClient is the client API for UserService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-//
-// User Service
 type UserServiceClient interface {
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*AuthResponse, error)
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*AuthResponse, error)
 	ValidateToken(ctx context.Context, in *ValidateTokenRequest, opts ...grpc.CallOption) (*UserResponse, error)
 	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*UserResponse, error)
+	ListProviders(ctx context.Context, in *ListProvidersRequest, opts ...grpc.CallOption) (*ListProvidersResponse, error)
 }
 
 type userServiceClient struct {
@@ -85,16 +85,25 @@ func (c *userServiceClient) GetUser(ctx context.Context, in *GetUserRequest, opt
 	return out, nil
 }
 
+func (c *userServiceClient) ListProviders(ctx context.Context, in *ListProvidersRequest, opts ...grpc.CallOption) (*ListProvidersResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListProvidersResponse)
+	err := c.cc.Invoke(ctx, UserService_ListProviders_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility.
-//
-// User Service
 type UserServiceServer interface {
 	Register(context.Context, *RegisterRequest) (*AuthResponse, error)
 	Login(context.Context, *LoginRequest) (*AuthResponse, error)
 	ValidateToken(context.Context, *ValidateTokenRequest) (*UserResponse, error)
 	GetUser(context.Context, *GetUserRequest) (*UserResponse, error)
+	ListProviders(context.Context, *ListProvidersRequest) (*ListProvidersResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -116,6 +125,9 @@ func (UnimplementedUserServiceServer) ValidateToken(context.Context, *ValidateTo
 }
 func (UnimplementedUserServiceServer) GetUser(context.Context, *GetUserRequest) (*UserResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetUser not implemented")
+}
+func (UnimplementedUserServiceServer) ListProviders(context.Context, *ListProvidersRequest) (*ListProvidersResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListProviders not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 func (UnimplementedUserServiceServer) testEmbeddedByValue()                     {}
@@ -210,6 +222,24 @@ func _UserService_GetUser_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_ListProviders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListProvidersRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).ListProviders(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_ListProviders_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).ListProviders(ctx, req.(*ListProvidersRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -233,26 +263,32 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "GetUser",
 			Handler:    _UserService_GetUser_Handler,
 		},
+		{
+			MethodName: "ListProviders",
+			Handler:    _UserService_ListProviders_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "shared/proto/service.proto",
 }
 
 const (
-	MarketplaceService_CreateService_FullMethodName = "/proto.MarketplaceService/CreateService"
-	MarketplaceService_GetServices_FullMethodName   = "/proto.MarketplaceService/GetServices"
-	MarketplaceService_CreateBooking_FullMethodName = "/proto.MarketplaceService/CreateBooking"
+	MarketplaceService_CreateService_FullMethodName       = "/proto.MarketplaceService/CreateService"
+	MarketplaceService_GetServices_FullMethodName         = "/proto.MarketplaceService/GetServices"
+	MarketplaceService_CreateBooking_FullMethodName       = "/proto.MarketplaceService/CreateBooking"
+	MarketplaceService_ListBookings_FullMethodName        = "/proto.MarketplaceService/ListBookings"
+	MarketplaceService_UpdateBookingStatus_FullMethodName = "/proto.MarketplaceService/UpdateBookingStatus"
 )
 
 // MarketplaceServiceClient is the client API for MarketplaceService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-//
-// Marketplace Service
 type MarketplaceServiceClient interface {
 	CreateService(ctx context.Context, in *CreateServiceRequest, opts ...grpc.CallOption) (*ServiceResponse, error)
 	GetServices(ctx context.Context, in *GetServicesRequest, opts ...grpc.CallOption) (*GetServicesResponse, error)
 	CreateBooking(ctx context.Context, in *CreateBookingRequest, opts ...grpc.CallOption) (*BookingResponse, error)
+	ListBookings(ctx context.Context, in *ListBookingsRequest, opts ...grpc.CallOption) (*ListBookingsResponse, error)
+	UpdateBookingStatus(ctx context.Context, in *UpdateBookingStatusRequest, opts ...grpc.CallOption) (*BookingResponse, error)
 }
 
 type marketplaceServiceClient struct {
@@ -293,15 +329,35 @@ func (c *marketplaceServiceClient) CreateBooking(ctx context.Context, in *Create
 	return out, nil
 }
 
+func (c *marketplaceServiceClient) ListBookings(ctx context.Context, in *ListBookingsRequest, opts ...grpc.CallOption) (*ListBookingsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListBookingsResponse)
+	err := c.cc.Invoke(ctx, MarketplaceService_ListBookings_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *marketplaceServiceClient) UpdateBookingStatus(ctx context.Context, in *UpdateBookingStatusRequest, opts ...grpc.CallOption) (*BookingResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BookingResponse)
+	err := c.cc.Invoke(ctx, MarketplaceService_UpdateBookingStatus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MarketplaceServiceServer is the server API for MarketplaceService service.
 // All implementations must embed UnimplementedMarketplaceServiceServer
 // for forward compatibility.
-//
-// Marketplace Service
 type MarketplaceServiceServer interface {
 	CreateService(context.Context, *CreateServiceRequest) (*ServiceResponse, error)
 	GetServices(context.Context, *GetServicesRequest) (*GetServicesResponse, error)
 	CreateBooking(context.Context, *CreateBookingRequest) (*BookingResponse, error)
+	ListBookings(context.Context, *ListBookingsRequest) (*ListBookingsResponse, error)
+	UpdateBookingStatus(context.Context, *UpdateBookingStatusRequest) (*BookingResponse, error)
 	mustEmbedUnimplementedMarketplaceServiceServer()
 }
 
@@ -320,6 +376,12 @@ func (UnimplementedMarketplaceServiceServer) GetServices(context.Context, *GetSe
 }
 func (UnimplementedMarketplaceServiceServer) CreateBooking(context.Context, *CreateBookingRequest) (*BookingResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateBooking not implemented")
+}
+func (UnimplementedMarketplaceServiceServer) ListBookings(context.Context, *ListBookingsRequest) (*ListBookingsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListBookings not implemented")
+}
+func (UnimplementedMarketplaceServiceServer) UpdateBookingStatus(context.Context, *UpdateBookingStatusRequest) (*BookingResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateBookingStatus not implemented")
 }
 func (UnimplementedMarketplaceServiceServer) mustEmbedUnimplementedMarketplaceServiceServer() {}
 func (UnimplementedMarketplaceServiceServer) testEmbeddedByValue()                            {}
@@ -396,6 +458,42 @@ func _MarketplaceService_CreateBooking_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MarketplaceService_ListBookings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListBookingsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MarketplaceServiceServer).ListBookings(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MarketplaceService_ListBookings_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MarketplaceServiceServer).ListBookings(ctx, req.(*ListBookingsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MarketplaceService_UpdateBookingStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateBookingStatusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MarketplaceServiceServer).UpdateBookingStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MarketplaceService_UpdateBookingStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MarketplaceServiceServer).UpdateBookingStatus(ctx, req.(*UpdateBookingStatusRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MarketplaceService_ServiceDesc is the grpc.ServiceDesc for MarketplaceService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -415,6 +513,14 @@ var MarketplaceService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "CreateBooking",
 			Handler:    _MarketplaceService_CreateBooking_Handler,
 		},
+		{
+			MethodName: "ListBookings",
+			Handler:    _MarketplaceService_ListBookings_Handler,
+		},
+		{
+			MethodName: "UpdateBookingStatus",
+			Handler:    _MarketplaceService_UpdateBookingStatus_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "shared/proto/service.proto",
@@ -428,8 +534,6 @@ const (
 // ChatServiceClient is the client API for ChatService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-//
-// Chat Service
 type ChatServiceClient interface {
 	GetHistory(ctx context.Context, in *GetHistoryRequest, opts ...grpc.CallOption) (*GetHistoryResponse, error)
 	SendMessage(ctx context.Context, in *SendMessageRequest, opts ...grpc.CallOption) (*SendMessageResponse, error)
@@ -466,8 +570,6 @@ func (c *chatServiceClient) SendMessage(ctx context.Context, in *SendMessageRequ
 // ChatServiceServer is the server API for ChatService service.
 // All implementations must embed UnimplementedChatServiceServer
 // for forward compatibility.
-//
-// Chat Service
 type ChatServiceServer interface {
 	GetHistory(context.Context, *GetHistoryRequest) (*GetHistoryResponse, error)
 	SendMessage(context.Context, *SendMessageRequest) (*SendMessageResponse, error)

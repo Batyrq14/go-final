@@ -28,7 +28,6 @@ func NewServer(store *UserStore, jwtSecret string) *Server {
 }
 
 func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.AuthResponse, error) {
-	// Check if user exists
 	existing, err := s.store.GetByEmail(ctx, req.Email)
 	if err != nil {
 		logger.Error("failed to check existing user", err)
@@ -45,7 +44,6 @@ func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.Aut
 		return nil, status.Error(codes.Internal, "internal error")
 	}
 
-	// Create user
 	userID := uuid.New()
 	user := &User{
 		ID:           userID,
@@ -63,7 +61,6 @@ func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.Aut
 		return nil, status.Error(codes.Internal, "internal error")
 	}
 
-	// Generate Token
 	token, err := auth.GenerateToken(
 		user.ID.String(),
 		user.Email,
@@ -175,4 +172,43 @@ func (s *Server) GetUser(ctx context.Context, req *pb.GetUserRequest) (*pb.UserR
 		Role:     user.Role,
 		Phone:    user.Phone,
 	}, nil
+}
+
+func (s *Server) ListProviders(ctx context.Context, req *pb.ListProvidersRequest) (*pb.ListProvidersResponse, error) {
+	limit := int(req.Limit)
+	if limit <= 0 {
+		limit = 10
+	}
+	offset := int(req.Offset)
+	if offset < 0 {
+		offset = 0
+	}
+
+	providers, err := s.store.ListProviders(limit, offset)
+	if err != nil {
+		logger.Error("failed to list providers", err)
+		return nil, status.Error(codes.Internal, "internal error")
+	}
+
+	var pbProviders []*pb.ProviderResponse
+	for _, p := range providers {
+		pbProviders = append(pbProviders, &pb.ProviderResponse{
+			User: &pb.UserResponse{
+				Id:       p.ID.String(),
+				Email:    p.Email,
+				FullName: p.FullName,
+				Role:     p.Role,
+				Phone:    p.Phone,
+			},
+			Location:        p.Location,
+			HourlyRate:      p.HourlyRate,
+			ExperienceYears: p.ExperienceYears,
+			Bio:             p.Bio,
+			IsAvailable:     p.IsAvailable,
+			Rating:          p.Rating,
+			ProviderId:      p.ServiceProviderID.String(),
+		})
+	}
+
+	return &pb.ListProvidersResponse{Providers: pbProviders}, nil
 }

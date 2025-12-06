@@ -51,3 +51,22 @@ func (s *UserStore) GetByID(ctx context.Context, id uuid.UUID) (*User, error) {
 	}
 	return &user, nil
 }
+
+func (s *UserStore) ListProviders(limit, offset int) ([]*DetailedProvider, error) {
+	var providers []*DetailedProvider
+	query := `
+		SELECT u.id, sp.id as service_provider_id, u.email, u.full_name, u.role, u.phone, 
+		       COALESCE(sp.hourly_rate, 0) as hourly_rate,
+		       COALESCE(sp.experience_years, 0) as experience_years,
+		       COALESCE(sp.location, '') as location,
+		       COALESCE(sp.bio, '') as bio,
+		       COALESCE(sp.is_available, false) as is_available,
+		       COALESCE(sp.rating, 0) as rating
+		FROM users u
+		LEFT JOIN service_providers sp ON u.id = sp.user_id
+		WHERE u.role = 'provider'
+		LIMIT $1 OFFSET $2
+	`
+	err := s.db.Select(&providers, query, limit, offset)
+	return providers, err
+}

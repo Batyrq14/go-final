@@ -18,7 +18,6 @@ func NewHandler(clients *Clients) *Handler {
 	return &Handler{clients: clients}
 }
 
-// Auth Handlers
 func (h *Handler) Register(c *gin.Context) {
 	var req pb.RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -61,15 +60,30 @@ func (h *Handler) GetProfile(c *gin.Context) {
 	c.JSON(http.StatusOK, res)
 }
 
-// Marketplace Handlers
+func (h *Handler) GetProviders(c *gin.Context) {
+	limitStr := c.DefaultQuery("limit", "20")
+	offsetStr := c.DefaultQuery("offset", "0")
+	limit, _ := strconv.Atoi(limitStr)
+	offset, _ := strconv.Atoi(offsetStr)
+
+	res, err := h.clients.User.ListProviders(context.Background(), &pb.ListProvidersRequest{
+		Limit:  int32(limit),
+		Offset: int32(offset),
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
+}
+
 func (h *Handler) CreateService(c *gin.Context) {
 	var req pb.CreateServiceRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	// Inject user_id from auth if needed, but proto has it in request.
-	// Ideally we override it with trusted claim.
 	req.UserId = c.GetString("user_id")
 
 	res, err := h.clients.Marketplace.CreateService(context.Background(), &req)
@@ -110,7 +124,41 @@ func (h *Handler) CreateBooking(c *gin.Context) {
 	c.JSON(http.StatusOK, res)
 }
 
-// Chat Handlers
+func (h *Handler) GetBookings(c *gin.Context) {
+	userId := c.GetString("user_id")
+	role := c.GetString("role")
+
+	res, err := h.clients.Marketplace.ListBookings(context.Background(), &pb.ListBookingsRequest{
+		UserId: userId,
+		Role:   role,
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
+}
+
+func (h *Handler) UpdateBookingStatus(c *gin.Context) {
+	bookingID := c.Param("id")
+	var req pb.UpdateBookingStatusRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	req.BookingId = bookingID
+	req.UserId = c.GetString("user_id")
+
+	res, err := h.clients.Marketplace.UpdateBookingStatus(context.Background(), &req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
+}
+
 func (h *Handler) GetChatHistory(c *gin.Context) {
 	otherUserID := c.Query("other_user_id")
 	limitStr := c.DefaultQuery("limit", "20")

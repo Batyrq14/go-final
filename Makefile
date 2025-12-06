@@ -21,15 +21,23 @@ docker-down:
 reset-db:
 	docker-compose down -v
 	docker-compose up -d
+	sleep 3
+	make migrate-up
+
+migrate-up:
+	migrate -path migrations -database "postgres://user:password@localhost:5433/qasynda?sslmode=disable" up
+
+migrate-down:
+	migrate -path migrations -database "postgres://user:password@localhost:5433/qasynda?sslmode=disable" down
 
 run-gateway:
-	go run ./services/gateway
+	DATABASE_URL="postgres://user:password@localhost:5433/qasynda?sslmode=disable" go run ./services/gateway
 
 run-user:
-	go run ./services/user
+	DATABASE_URL="postgres://user:password@localhost:5433/qasynda?sslmode=disable" go run ./services/user
 
 run-marketplace:
-	go run ./services/marketplace
+	DATABASE_URL="postgres://user:password@localhost:5433/qasynda?sslmode=disable" go run ./services/marketplace
 
 run-chat:
-	go run ./services/chat
+	DATABASE_URL="postgres://user:password@localhost:5433/qasynda?sslmode=disable" go run ./services/chat

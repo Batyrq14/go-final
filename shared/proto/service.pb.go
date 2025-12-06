@@ -21,6 +21,202 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type ListProvidersRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Limit         int32                  `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
+	Offset        int32                  `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListProvidersRequest) Reset() {
+	*x = ListProvidersRequest{}
+	mi := &file_shared_proto_service_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListProvidersRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListProvidersRequest) ProtoMessage() {}
+
+func (x *ListProvidersRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shared_proto_service_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListProvidersRequest.ProtoReflect.Descriptor instead.
+func (*ListProvidersRequest) Descriptor() ([]byte, []int) {
+	return file_shared_proto_service_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *ListProvidersRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+func (x *ListProvidersRequest) GetOffset() int32 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
+type ListProvidersResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Providers     []*ProviderResponse    `protobuf:"bytes,1,rep,name=providers,proto3" json:"providers,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListProvidersResponse) Reset() {
+	*x = ListProvidersResponse{}
+	mi := &file_shared_proto_service_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListProvidersResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListProvidersResponse) ProtoMessage() {}
+
+func (x *ListProvidersResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_shared_proto_service_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListProvidersResponse.ProtoReflect.Descriptor instead.
+func (*ListProvidersResponse) Descriptor() ([]byte, []int) {
+	return file_shared_proto_service_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *ListProvidersResponse) GetProviders() []*ProviderResponse {
+	if x != nil {
+		return x.Providers
+	}
+	return nil
+}
+
+type ProviderResponse struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	User            *UserResponse          `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
+	Location        string                 `protobuf:"bytes,2,opt,name=location,proto3" json:"location,omitempty"`
+	HourlyRate      float64                `protobuf:"fixed64,3,opt,name=hourly_rate,json=hourlyRate,proto3" json:"hourly_rate,omitempty"`
+	ExperienceYears int32                  `protobuf:"varint,4,opt,name=experience_years,json=experienceYears,proto3" json:"experience_years,omitempty"`
+	Bio             string                 `protobuf:"bytes,5,opt,name=bio,proto3" json:"bio,omitempty"`
+	IsAvailable     bool                   `protobuf:"varint,6,opt,name=is_available,json=isAvailable,proto3" json:"is_available,omitempty"`
+	Rating          float64                `protobuf:"fixed64,7,opt,name=rating,proto3" json:"rating,omitempty"`
+	ProviderId      string                 `protobuf:"bytes,8,opt,name=provider_id,json=providerId,proto3" json:"provider_id,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *ProviderResponse) Reset() {
+	*x = ProviderResponse{}
+	mi := &file_shared_proto_service_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProviderResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProviderResponse) ProtoMessage() {}
+
+func (x *ProviderResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_shared_proto_service_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProviderResponse.ProtoReflect.Descriptor instead.
+func (*ProviderResponse) Descriptor() ([]byte, []int) {
+	return file_shared_proto_service_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *ProviderResponse) GetUser() *UserResponse {
+	if x != nil {
+		return x.User
+	}
+	return nil
+}
+
+func (x *ProviderResponse) GetLocation() string {
+	if x != nil {
+		return x.Location
+	}
+	return ""
+}
+
+func (x *ProviderResponse) GetHourlyRate() float64 {
+	if x != nil {
+		return x.HourlyRate
+	}
+	return 0
+}
+
+func (x *ProviderResponse) GetExperienceYears() int32 {
+	if x != nil {
+		return x.ExperienceYears
+	}
+	return 0
+}
+
+func (x *ProviderResponse) GetBio() string {
+	if x != nil {
+		return x.Bio
+	}
+	return ""
+}
+
+func (x *ProviderResponse) GetIsAvailable() bool {
+	if x != nil {
+		return x.IsAvailable
+	}
+	return false
+}
+
+func (x *ProviderResponse) GetRating() float64 {
+	if x != nil {
+		return x.Rating
+	}
+	return 0
+}
+
+func (x *ProviderResponse) GetProviderId() string {
+	if x != nil {
+		return x.ProviderId
+	}
+	return ""
+}
+
 type RegisterRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
@@ -34,7 +230,7 @@ type RegisterRequest struct {
 
 func (x *RegisterRequest) Reset() {
 	*x = RegisterRequest{}
-	mi := &file_shared_proto_service_proto_msgTypes[0]
+	mi := &file_shared_proto_service_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -46,7 +242,7 @@ func (x *RegisterRequest) String() string {
 func (*RegisterRequest) ProtoMessage() {}
 
 func (x *RegisterRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shared_proto_service_proto_msgTypes[0]
+	mi := &file_shared_proto_service_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -59,7 +255,7 @@ func (x *RegisterRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegisterRequest.ProtoReflect.Descriptor instead.
 func (*RegisterRequest) Descriptor() ([]byte, []int) {
-	return file_shared_proto_service_proto_rawDescGZIP(), []int{0}
+	return file_shared_proto_service_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *RegisterRequest) GetEmail() string {
@@ -107,7 +303,7 @@ type LoginRequest struct {
 
 func (x *LoginRequest) Reset() {
 	*x = LoginRequest{}
-	mi := &file_shared_proto_service_proto_msgTypes[1]
+	mi := &file_shared_proto_service_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -119,7 +315,7 @@ func (x *LoginRequest) String() string {
 func (*LoginRequest) ProtoMessage() {}
 
 func (x *LoginRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shared_proto_service_proto_msgTypes[1]
+	mi := &file_shared_proto_service_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -132,7 +328,7 @@ func (x *LoginRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoginRequest.ProtoReflect.Descriptor instead.
 func (*LoginRequest) Descriptor() ([]byte, []int) {
-	return file_shared_proto_service_proto_rawDescGZIP(), []int{1}
+	return file_shared_proto_service_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *LoginRequest) GetEmail() string {
@@ -158,7 +354,7 @@ type ValidateTokenRequest struct {
 
 func (x *ValidateTokenRequest) Reset() {
 	*x = ValidateTokenRequest{}
-	mi := &file_shared_proto_service_proto_msgTypes[2]
+	mi := &file_shared_proto_service_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -170,7 +366,7 @@ func (x *ValidateTokenRequest) String() string {
 func (*ValidateTokenRequest) ProtoMessage() {}
 
 func (x *ValidateTokenRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shared_proto_service_proto_msgTypes[2]
+	mi := &file_shared_proto_service_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -183,7 +379,7 @@ func (x *ValidateTokenRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ValidateTokenRequest.ProtoReflect.Descriptor instead.
 func (*ValidateTokenRequest) Descriptor() ([]byte, []int) {
-	return file_shared_proto_service_proto_rawDescGZIP(), []int{2}
+	return file_shared_proto_service_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ValidateTokenRequest) GetToken() string {
@@ -202,7 +398,7 @@ type GetUserRequest struct {
 
 func (x *GetUserRequest) Reset() {
 	*x = GetUserRequest{}
-	mi := &file_shared_proto_service_proto_msgTypes[3]
+	mi := &file_shared_proto_service_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -214,7 +410,7 @@ func (x *GetUserRequest) String() string {
 func (*GetUserRequest) ProtoMessage() {}
 
 func (x *GetUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shared_proto_service_proto_msgTypes[3]
+	mi := &file_shared_proto_service_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -227,7 +423,7 @@ func (x *GetUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUserRequest.ProtoReflect.Descriptor instead.
 func (*GetUserRequest) Descriptor() ([]byte, []int) {
-	return file_shared_proto_service_proto_rawDescGZIP(), []int{3}
+	return file_shared_proto_service_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *GetUserRequest) GetUserId() string {
@@ -247,7 +443,7 @@ type AuthResponse struct {
 
 func (x *AuthResponse) Reset() {
 	*x = AuthResponse{}
-	mi := &file_shared_proto_service_proto_msgTypes[4]
+	mi := &file_shared_proto_service_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -259,7 +455,7 @@ func (x *AuthResponse) String() string {
 func (*AuthResponse) ProtoMessage() {}
 
 func (x *AuthResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shared_proto_service_proto_msgTypes[4]
+	mi := &file_shared_proto_service_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -272,7 +468,7 @@ func (x *AuthResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AuthResponse.ProtoReflect.Descriptor instead.
 func (*AuthResponse) Descriptor() ([]byte, []int) {
-	return file_shared_proto_service_proto_rawDescGZIP(), []int{4}
+	return file_shared_proto_service_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *AuthResponse) GetToken() string {
@@ -302,7 +498,7 @@ type UserResponse struct {
 
 func (x *UserResponse) Reset() {
 	*x = UserResponse{}
-	mi := &file_shared_proto_service_proto_msgTypes[5]
+	mi := &file_shared_proto_service_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -314,7 +510,7 @@ func (x *UserResponse) String() string {
 func (*UserResponse) ProtoMessage() {}
 
 func (x *UserResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shared_proto_service_proto_msgTypes[5]
+	mi := &file_shared_proto_service_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -327,7 +523,7 @@ func (x *UserResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserResponse.ProtoReflect.Descriptor instead.
 func (*UserResponse) Descriptor() ([]byte, []int) {
-	return file_shared_proto_service_proto_rawDescGZIP(), []int{5}
+	return file_shared_proto_service_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *UserResponse) GetId() string {
@@ -378,7 +574,7 @@ type CreateServiceRequest struct {
 
 func (x *CreateServiceRequest) Reset() {
 	*x = CreateServiceRequest{}
-	mi := &file_shared_proto_service_proto_msgTypes[6]
+	mi := &file_shared_proto_service_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -390,7 +586,7 @@ func (x *CreateServiceRequest) String() string {
 func (*CreateServiceRequest) ProtoMessage() {}
 
 func (x *CreateServiceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shared_proto_service_proto_msgTypes[6]
+	mi := &file_shared_proto_service_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -403,7 +599,7 @@ func (x *CreateServiceRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateServiceRequest.ProtoReflect.Descriptor instead.
 func (*CreateServiceRequest) Descriptor() ([]byte, []int) {
-	return file_shared_proto_service_proto_rawDescGZIP(), []int{6}
+	return file_shared_proto_service_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *CreateServiceRequest) GetUserId() string {
@@ -454,7 +650,7 @@ type ServiceResponse struct {
 
 func (x *ServiceResponse) Reset() {
 	*x = ServiceResponse{}
-	mi := &file_shared_proto_service_proto_msgTypes[7]
+	mi := &file_shared_proto_service_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -466,7 +662,7 @@ func (x *ServiceResponse) String() string {
 func (*ServiceResponse) ProtoMessage() {}
 
 func (x *ServiceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shared_proto_service_proto_msgTypes[7]
+	mi := &file_shared_proto_service_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -479,7 +675,7 @@ func (x *ServiceResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ServiceResponse.ProtoReflect.Descriptor instead.
 func (*ServiceResponse) Descriptor() ([]byte, []int) {
-	return file_shared_proto_service_proto_rawDescGZIP(), []int{7}
+	return file_shared_proto_service_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ServiceResponse) GetId() string {
@@ -526,7 +722,7 @@ type GetServicesRequest struct {
 
 func (x *GetServicesRequest) Reset() {
 	*x = GetServicesRequest{}
-	mi := &file_shared_proto_service_proto_msgTypes[8]
+	mi := &file_shared_proto_service_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -538,7 +734,7 @@ func (x *GetServicesRequest) String() string {
 func (*GetServicesRequest) ProtoMessage() {}
 
 func (x *GetServicesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shared_proto_service_proto_msgTypes[8]
+	mi := &file_shared_proto_service_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -551,7 +747,7 @@ func (x *GetServicesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetServicesRequest.ProtoReflect.Descriptor instead.
 func (*GetServicesRequest) Descriptor() ([]byte, []int) {
-	return file_shared_proto_service_proto_rawDescGZIP(), []int{8}
+	return file_shared_proto_service_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *GetServicesRequest) GetCategory() string {
@@ -570,7 +766,7 @@ type GetServicesResponse struct {
 
 func (x *GetServicesResponse) Reset() {
 	*x = GetServicesResponse{}
-	mi := &file_shared_proto_service_proto_msgTypes[9]
+	mi := &file_shared_proto_service_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -582,7 +778,7 @@ func (x *GetServicesResponse) String() string {
 func (*GetServicesResponse) ProtoMessage() {}
 
 func (x *GetServicesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shared_proto_service_proto_msgTypes[9]
+	mi := &file_shared_proto_service_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -595,7 +791,7 @@ func (x *GetServicesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetServicesResponse.ProtoReflect.Descriptor instead.
 func (*GetServicesResponse) Descriptor() ([]byte, []int) {
-	return file_shared_proto_service_proto_rawDescGZIP(), []int{9}
+	return file_shared_proto_service_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *GetServicesResponse) GetServices() []*ServiceResponse {
@@ -608,15 +804,16 @@ func (x *GetServicesResponse) GetServices() []*ServiceResponse {
 type CreateBookingRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ServiceId     string                 `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
-	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	ScheduledTime string                 `protobuf:"bytes,3,opt,name=scheduled_time,json=scheduledTime,proto3" json:"scheduled_time,omitempty"` // ISO string
+	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"` // Client ID
+	ProviderId    string                 `protobuf:"bytes,3,opt,name=provider_id,json=providerId,proto3" json:"provider_id,omitempty"`
+	ScheduledTime string                 `protobuf:"bytes,4,opt,name=scheduled_time,json=scheduledTime,proto3" json:"scheduled_time,omitempty"` // ISO string
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateBookingRequest) Reset() {
 	*x = CreateBookingRequest{}
-	mi := &file_shared_proto_service_proto_msgTypes[10]
+	mi := &file_shared_proto_service_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -628,7 +825,7 @@ func (x *CreateBookingRequest) String() string {
 func (*CreateBookingRequest) ProtoMessage() {}
 
 func (x *CreateBookingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shared_proto_service_proto_msgTypes[10]
+	mi := &file_shared_proto_service_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -641,7 +838,7 @@ func (x *CreateBookingRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateBookingRequest.ProtoReflect.Descriptor instead.
 func (*CreateBookingRequest) Descriptor() ([]byte, []int) {
-	return file_shared_proto_service_proto_rawDescGZIP(), []int{10}
+	return file_shared_proto_service_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *CreateBookingRequest) GetServiceId() string {
@@ -654,6 +851,13 @@ func (x *CreateBookingRequest) GetServiceId() string {
 func (x *CreateBookingRequest) GetUserId() string {
 	if x != nil {
 		return x.UserId
+	}
+	return ""
+}
+
+func (x *CreateBookingRequest) GetProviderId() string {
+	if x != nil {
+		return x.ProviderId
 	}
 	return ""
 }
@@ -675,7 +879,7 @@ type BookingResponse struct {
 
 func (x *BookingResponse) Reset() {
 	*x = BookingResponse{}
-	mi := &file_shared_proto_service_proto_msgTypes[11]
+	mi := &file_shared_proto_service_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -687,7 +891,7 @@ func (x *BookingResponse) String() string {
 func (*BookingResponse) ProtoMessage() {}
 
 func (x *BookingResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shared_proto_service_proto_msgTypes[11]
+	mi := &file_shared_proto_service_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -700,7 +904,7 @@ func (x *BookingResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BookingResponse.ProtoReflect.Descriptor instead.
 func (*BookingResponse) Descriptor() ([]byte, []int) {
-	return file_shared_proto_service_proto_rawDescGZIP(), []int{11}
+	return file_shared_proto_service_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *BookingResponse) GetId() string {
@@ -729,7 +933,7 @@ type GetHistoryRequest struct {
 
 func (x *GetHistoryRequest) Reset() {
 	*x = GetHistoryRequest{}
-	mi := &file_shared_proto_service_proto_msgTypes[12]
+	mi := &file_shared_proto_service_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -741,7 +945,7 @@ func (x *GetHistoryRequest) String() string {
 func (*GetHistoryRequest) ProtoMessage() {}
 
 func (x *GetHistoryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shared_proto_service_proto_msgTypes[12]
+	mi := &file_shared_proto_service_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -754,7 +958,7 @@ func (x *GetHistoryRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetHistoryRequest.ProtoReflect.Descriptor instead.
 func (*GetHistoryRequest) Descriptor() ([]byte, []int) {
-	return file_shared_proto_service_proto_rawDescGZIP(), []int{12}
+	return file_shared_proto_service_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *GetHistoryRequest) GetUserId_1() string {
@@ -798,7 +1002,7 @@ type Message struct {
 
 func (x *Message) Reset() {
 	*x = Message{}
-	mi := &file_shared_proto_service_proto_msgTypes[13]
+	mi := &file_shared_proto_service_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -810,7 +1014,7 @@ func (x *Message) String() string {
 func (*Message) ProtoMessage() {}
 
 func (x *Message) ProtoReflect() protoreflect.Message {
-	mi := &file_shared_proto_service_proto_msgTypes[13]
+	mi := &file_shared_proto_service_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -823,7 +1027,7 @@ func (x *Message) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Message.ProtoReflect.Descriptor instead.
 func (*Message) Descriptor() ([]byte, []int) {
-	return file_shared_proto_service_proto_rawDescGZIP(), []int{13}
+	return file_shared_proto_service_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *Message) GetId() string {
@@ -870,7 +1074,7 @@ type GetHistoryResponse struct {
 
 func (x *GetHistoryResponse) Reset() {
 	*x = GetHistoryResponse{}
-	mi := &file_shared_proto_service_proto_msgTypes[14]
+	mi := &file_shared_proto_service_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -882,7 +1086,7 @@ func (x *GetHistoryResponse) String() string {
 func (*GetHistoryResponse) ProtoMessage() {}
 
 func (x *GetHistoryResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shared_proto_service_proto_msgTypes[14]
+	mi := &file_shared_proto_service_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -895,7 +1099,7 @@ func (x *GetHistoryResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetHistoryResponse.ProtoReflect.Descriptor instead.
 func (*GetHistoryResponse) Descriptor() ([]byte, []int) {
-	return file_shared_proto_service_proto_rawDescGZIP(), []int{14}
+	return file_shared_proto_service_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *GetHistoryResponse) GetMessages() []*Message {
@@ -916,7 +1120,7 @@ type SendMessageRequest struct {
 
 func (x *SendMessageRequest) Reset() {
 	*x = SendMessageRequest{}
-	mi := &file_shared_proto_service_proto_msgTypes[15]
+	mi := &file_shared_proto_service_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -928,7 +1132,7 @@ func (x *SendMessageRequest) String() string {
 func (*SendMessageRequest) ProtoMessage() {}
 
 func (x *SendMessageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shared_proto_service_proto_msgTypes[15]
+	mi := &file_shared_proto_service_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -941,7 +1145,7 @@ func (x *SendMessageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendMessageRequest.ProtoReflect.Descriptor instead.
 func (*SendMessageRequest) Descriptor() ([]byte, []int) {
-	return file_shared_proto_service_proto_rawDescGZIP(), []int{15}
+	return file_shared_proto_service_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *SendMessageRequest) GetSenderId() string {
@@ -975,7 +1179,7 @@ type SendMessageResponse struct {
 
 func (x *SendMessageResponse) Reset() {
 	*x = SendMessageResponse{}
-	mi := &file_shared_proto_service_proto_msgTypes[16]
+	mi := &file_shared_proto_service_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -987,7 +1191,7 @@ func (x *SendMessageResponse) String() string {
 func (*SendMessageResponse) ProtoMessage() {}
 
 func (x *SendMessageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shared_proto_service_proto_msgTypes[16]
+	mi := &file_shared_proto_service_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1000,7 +1204,7 @@ func (x *SendMessageResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendMessageResponse.ProtoReflect.Descriptor instead.
 func (*SendMessageResponse) Descriptor() ([]byte, []int) {
-	return file_shared_proto_service_proto_rawDescGZIP(), []int{16}
+	return file_shared_proto_service_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *SendMessageResponse) GetId() string {
@@ -1017,11 +1221,283 @@ func (x *SendMessageResponse) GetTimestamp() string {
 	return ""
 }
 
+type ListBookingsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Role          string                 `protobuf:"bytes,2,opt,name=role,proto3" json:"role,omitempty"` // "client" or "provider"
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListBookingsRequest) Reset() {
+	*x = ListBookingsRequest{}
+	mi := &file_shared_proto_service_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListBookingsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListBookingsRequest) ProtoMessage() {}
+
+func (x *ListBookingsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shared_proto_service_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListBookingsRequest.ProtoReflect.Descriptor instead.
+func (*ListBookingsRequest) Descriptor() ([]byte, []int) {
+	return file_shared_proto_service_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *ListBookingsRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *ListBookingsRequest) GetRole() string {
+	if x != nil {
+		return x.Role
+	}
+	return ""
+}
+
+type BookingDetails struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	ServiceId      string                 `protobuf:"bytes,2,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	ClientId       string                 `protobuf:"bytes,3,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
+	ProviderId     string                 `protobuf:"bytes,4,opt,name=provider_id,json=providerId,proto3" json:"provider_id,omitempty"`
+	Status         string                 `protobuf:"bytes,5,opt,name=status,proto3" json:"status,omitempty"`
+	ScheduledTime  string                 `protobuf:"bytes,6,opt,name=scheduled_time,json=scheduledTime,proto3" json:"scheduled_time,omitempty"`
+	ServiceTitle   string                 `protobuf:"bytes,7,opt,name=service_title,json=serviceTitle,proto3" json:"service_title,omitempty"`
+	OtherPartyName string                 `protobuf:"bytes,8,opt,name=other_party_name,json=otherPartyName,proto3" json:"other_party_name,omitempty"` // Client Name (for provider) or Provider Name (for client)
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *BookingDetails) Reset() {
+	*x = BookingDetails{}
+	mi := &file_shared_proto_service_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BookingDetails) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BookingDetails) ProtoMessage() {}
+
+func (x *BookingDetails) ProtoReflect() protoreflect.Message {
+	mi := &file_shared_proto_service_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BookingDetails.ProtoReflect.Descriptor instead.
+func (*BookingDetails) Descriptor() ([]byte, []int) {
+	return file_shared_proto_service_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *BookingDetails) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *BookingDetails) GetServiceId() string {
+	if x != nil {
+		return x.ServiceId
+	}
+	return ""
+}
+
+func (x *BookingDetails) GetClientId() string {
+	if x != nil {
+		return x.ClientId
+	}
+	return ""
+}
+
+func (x *BookingDetails) GetProviderId() string {
+	if x != nil {
+		return x.ProviderId
+	}
+	return ""
+}
+
+func (x *BookingDetails) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *BookingDetails) GetScheduledTime() string {
+	if x != nil {
+		return x.ScheduledTime
+	}
+	return ""
+}
+
+func (x *BookingDetails) GetServiceTitle() string {
+	if x != nil {
+		return x.ServiceTitle
+	}
+	return ""
+}
+
+func (x *BookingDetails) GetOtherPartyName() string {
+	if x != nil {
+		return x.OtherPartyName
+	}
+	return ""
+}
+
+type ListBookingsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Bookings      []*BookingDetails      `protobuf:"bytes,1,rep,name=bookings,proto3" json:"bookings,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListBookingsResponse) Reset() {
+	*x = ListBookingsResponse{}
+	mi := &file_shared_proto_service_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListBookingsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListBookingsResponse) ProtoMessage() {}
+
+func (x *ListBookingsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_shared_proto_service_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListBookingsResponse.ProtoReflect.Descriptor instead.
+func (*ListBookingsResponse) Descriptor() ([]byte, []int) {
+	return file_shared_proto_service_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *ListBookingsResponse) GetBookings() []*BookingDetails {
+	if x != nil {
+		return x.Bookings
+	}
+	return nil
+}
+
+type UpdateBookingStatusRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	BookingId     string                 `protobuf:"bytes,1,opt,name=booking_id,json=bookingId,proto3" json:"booking_id,omitempty"`
+	Status        string                 `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
+	UserId        string                 `protobuf:"bytes,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateBookingStatusRequest) Reset() {
+	*x = UpdateBookingStatusRequest{}
+	mi := &file_shared_proto_service_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateBookingStatusRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateBookingStatusRequest) ProtoMessage() {}
+
+func (x *UpdateBookingStatusRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shared_proto_service_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateBookingStatusRequest.ProtoReflect.Descriptor instead.
+func (*UpdateBookingStatusRequest) Descriptor() ([]byte, []int) {
+	return file_shared_proto_service_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *UpdateBookingStatusRequest) GetBookingId() string {
+	if x != nil {
+		return x.BookingId
+	}
+	return ""
+}
+
+func (x *UpdateBookingStatusRequest) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *UpdateBookingStatusRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
 var File_shared_proto_service_proto protoreflect.FileDescriptor
 
 const file_shared_proto_service_proto_rawDesc = "" +
 	"\n" +
-	"\x1ashared/proto/service.proto\x12\x05proto\"\x8a\x01\n" +
+	"\x1ashared/proto/service.proto\x12\x05proto\"D\n" +
+	"\x14ListProvidersRequest\x12\x14\n" +
+	"\x05limit\x18\x01 \x01(\x05R\x05limit\x12\x16\n" +
+	"\x06offset\x18\x02 \x01(\x05R\x06offset\"N\n" +
+	"\x15ListProvidersResponse\x125\n" +
+	"\tproviders\x18\x01 \x03(\v2\x17.proto.ProviderResponseR\tproviders\"\x91\x02\n" +
+	"\x10ProviderResponse\x12'\n" +
+	"\x04user\x18\x01 \x01(\v2\x13.proto.UserResponseR\x04user\x12\x1a\n" +
+	"\blocation\x18\x02 \x01(\tR\blocation\x12\x1f\n" +
+	"\vhourly_rate\x18\x03 \x01(\x01R\n" +
+	"hourlyRate\x12)\n" +
+	"\x10experience_years\x18\x04 \x01(\x05R\x0fexperienceYears\x12\x10\n" +
+	"\x03bio\x18\x05 \x01(\tR\x03bio\x12!\n" +
+	"\fis_available\x18\x06 \x01(\bR\visAvailable\x12\x16\n" +
+	"\x06rating\x18\a \x01(\x01R\x06rating\x12\x1f\n" +
+	"\vprovider_id\x18\b \x01(\tR\n" +
+	"providerId\"\x8a\x01\n" +
 	"\x0fRegisterRequest\x12\x14\n" +
 	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1a\n" +
 	"\bpassword\x18\x02 \x01(\tR\bpassword\x12\x1b\n" +
@@ -1060,12 +1536,14 @@ const file_shared_proto_service_proto_rawDesc = "" +
 	"\x12GetServicesRequest\x12\x1a\n" +
 	"\bcategory\x18\x01 \x01(\tR\bcategory\"I\n" +
 	"\x13GetServicesResponse\x122\n" +
-	"\bservices\x18\x01 \x03(\v2\x16.proto.ServiceResponseR\bservices\"u\n" +
+	"\bservices\x18\x01 \x03(\v2\x16.proto.ServiceResponseR\bservices\"\x96\x01\n" +
 	"\x14CreateBookingRequest\x12\x1d\n" +
 	"\n" +
 	"service_id\x18\x01 \x01(\tR\tserviceId\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\x12%\n" +
-	"\x0escheduled_time\x18\x03 \x01(\tR\rscheduledTime\"9\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1f\n" +
+	"\vprovider_id\x18\x03 \x01(\tR\n" +
+	"providerId\x12%\n" +
+	"\x0escheduled_time\x18\x04 \x01(\tR\rscheduledTime\"9\n" +
 	"\x0fBookingResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x16\n" +
 	"\x06status\x18\x02 \x01(\tR\x06status\"y\n" +
@@ -1090,16 +1568,40 @@ const file_shared_proto_service_proto_rawDesc = "" +
 	"\acontent\x18\x03 \x01(\tR\acontent\"C\n" +
 	"\x13SendMessageResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1c\n" +
-	"\ttimestamp\x18\x02 \x01(\tR\ttimestamp2\xf3\x01\n" +
+	"\ttimestamp\x18\x02 \x01(\tR\ttimestamp\"B\n" +
+	"\x13ListBookingsRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x12\n" +
+	"\x04role\x18\x02 \x01(\tR\x04role\"\x8b\x02\n" +
+	"\x0eBookingDetails\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
+	"\n" +
+	"service_id\x18\x02 \x01(\tR\tserviceId\x12\x1b\n" +
+	"\tclient_id\x18\x03 \x01(\tR\bclientId\x12\x1f\n" +
+	"\vprovider_id\x18\x04 \x01(\tR\n" +
+	"providerId\x12\x16\n" +
+	"\x06status\x18\x05 \x01(\tR\x06status\x12%\n" +
+	"\x0escheduled_time\x18\x06 \x01(\tR\rscheduledTime\x12#\n" +
+	"\rservice_title\x18\a \x01(\tR\fserviceTitle\x12(\n" +
+	"\x10other_party_name\x18\b \x01(\tR\x0eotherPartyName\"I\n" +
+	"\x14ListBookingsResponse\x121\n" +
+	"\bbookings\x18\x01 \x03(\v2\x15.proto.BookingDetailsR\bbookings\"l\n" +
+	"\x1aUpdateBookingStatusRequest\x12\x1d\n" +
+	"\n" +
+	"booking_id\x18\x01 \x01(\tR\tbookingId\x12\x16\n" +
+	"\x06status\x18\x02 \x01(\tR\x06status\x12\x17\n" +
+	"\auser_id\x18\x03 \x01(\tR\x06userId2\xbf\x02\n" +
 	"\vUserService\x127\n" +
 	"\bRegister\x12\x16.proto.RegisterRequest\x1a\x13.proto.AuthResponse\x121\n" +
 	"\x05Login\x12\x13.proto.LoginRequest\x1a\x13.proto.AuthResponse\x12A\n" +
 	"\rValidateToken\x12\x1b.proto.ValidateTokenRequest\x1a\x13.proto.UserResponse\x125\n" +
-	"\aGetUser\x12\x15.proto.GetUserRequest\x1a\x13.proto.UserResponse2\xe6\x01\n" +
+	"\aGetUser\x12\x15.proto.GetUserRequest\x1a\x13.proto.UserResponse\x12J\n" +
+	"\rListProviders\x12\x1b.proto.ListProvidersRequest\x1a\x1c.proto.ListProvidersResponse2\x81\x03\n" +
 	"\x12MarketplaceService\x12D\n" +
 	"\rCreateService\x12\x1b.proto.CreateServiceRequest\x1a\x16.proto.ServiceResponse\x12D\n" +
 	"\vGetServices\x12\x19.proto.GetServicesRequest\x1a\x1a.proto.GetServicesResponse\x12D\n" +
-	"\rCreateBooking\x12\x1b.proto.CreateBookingRequest\x1a\x16.proto.BookingResponse2\x96\x01\n" +
+	"\rCreateBooking\x12\x1b.proto.CreateBookingRequest\x1a\x16.proto.BookingResponse\x12G\n" +
+	"\fListBookings\x12\x1a.proto.ListBookingsRequest\x1a\x1b.proto.ListBookingsResponse\x12P\n" +
+	"\x13UpdateBookingStatus\x12!.proto.UpdateBookingStatusRequest\x1a\x16.proto.BookingResponse2\x96\x01\n" +
 	"\vChatService\x12A\n" +
 	"\n" +
 	"GetHistory\x12\x18.proto.GetHistoryRequest\x1a\x19.proto.GetHistoryResponse\x12D\n" +
@@ -1117,53 +1619,69 @@ func file_shared_proto_service_proto_rawDescGZIP() []byte {
 	return file_shared_proto_service_proto_rawDescData
 }
 
-var file_shared_proto_service_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
+var file_shared_proto_service_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
 var file_shared_proto_service_proto_goTypes = []any{
-	(*RegisterRequest)(nil),      // 0: proto.RegisterRequest
-	(*LoginRequest)(nil),         // 1: proto.LoginRequest
-	(*ValidateTokenRequest)(nil), // 2: proto.ValidateTokenRequest
-	(*GetUserRequest)(nil),       // 3: proto.GetUserRequest
-	(*AuthResponse)(nil),         // 4: proto.AuthResponse
-	(*UserResponse)(nil),         // 5: proto.UserResponse
-	(*CreateServiceRequest)(nil), // 6: proto.CreateServiceRequest
-	(*ServiceResponse)(nil),      // 7: proto.ServiceResponse
-	(*GetServicesRequest)(nil),   // 8: proto.GetServicesRequest
-	(*GetServicesResponse)(nil),  // 9: proto.GetServicesResponse
-	(*CreateBookingRequest)(nil), // 10: proto.CreateBookingRequest
-	(*BookingResponse)(nil),      // 11: proto.BookingResponse
-	(*GetHistoryRequest)(nil),    // 12: proto.GetHistoryRequest
-	(*Message)(nil),              // 13: proto.Message
-	(*GetHistoryResponse)(nil),   // 14: proto.GetHistoryResponse
-	(*SendMessageRequest)(nil),   // 15: proto.SendMessageRequest
-	(*SendMessageResponse)(nil),  // 16: proto.SendMessageResponse
+	(*ListProvidersRequest)(nil),       // 0: proto.ListProvidersRequest
+	(*ListProvidersResponse)(nil),      // 1: proto.ListProvidersResponse
+	(*ProviderResponse)(nil),           // 2: proto.ProviderResponse
+	(*RegisterRequest)(nil),            // 3: proto.RegisterRequest
+	(*LoginRequest)(nil),               // 4: proto.LoginRequest
+	(*ValidateTokenRequest)(nil),       // 5: proto.ValidateTokenRequest
+	(*GetUserRequest)(nil),             // 6: proto.GetUserRequest
+	(*AuthResponse)(nil),               // 7: proto.AuthResponse
+	(*UserResponse)(nil),               // 8: proto.UserResponse
+	(*CreateServiceRequest)(nil),       // 9: proto.CreateServiceRequest
+	(*ServiceResponse)(nil),            // 10: proto.ServiceResponse
+	(*GetServicesRequest)(nil),         // 11: proto.GetServicesRequest
+	(*GetServicesResponse)(nil),        // 12: proto.GetServicesResponse
+	(*CreateBookingRequest)(nil),       // 13: proto.CreateBookingRequest
+	(*BookingResponse)(nil),            // 14: proto.BookingResponse
+	(*GetHistoryRequest)(nil),          // 15: proto.GetHistoryRequest
+	(*Message)(nil),                    // 16: proto.Message
+	(*GetHistoryResponse)(nil),         // 17: proto.GetHistoryResponse
+	(*SendMessageRequest)(nil),         // 18: proto.SendMessageRequest
+	(*SendMessageResponse)(nil),        // 19: proto.SendMessageResponse
+	(*ListBookingsRequest)(nil),        // 20: proto.ListBookingsRequest
+	(*BookingDetails)(nil),             // 21: proto.BookingDetails
+	(*ListBookingsResponse)(nil),       // 22: proto.ListBookingsResponse
+	(*UpdateBookingStatusRequest)(nil), // 23: proto.UpdateBookingStatusRequest
 }
 var file_shared_proto_service_proto_depIdxs = []int32{
-	5,  // 0: proto.AuthResponse.user:type_name -> proto.UserResponse
-	7,  // 1: proto.GetServicesResponse.services:type_name -> proto.ServiceResponse
-	13, // 2: proto.GetHistoryResponse.messages:type_name -> proto.Message
-	0,  // 3: proto.UserService.Register:input_type -> proto.RegisterRequest
-	1,  // 4: proto.UserService.Login:input_type -> proto.LoginRequest
-	2,  // 5: proto.UserService.ValidateToken:input_type -> proto.ValidateTokenRequest
-	3,  // 6: proto.UserService.GetUser:input_type -> proto.GetUserRequest
-	6,  // 7: proto.MarketplaceService.CreateService:input_type -> proto.CreateServiceRequest
-	8,  // 8: proto.MarketplaceService.GetServices:input_type -> proto.GetServicesRequest
-	10, // 9: proto.MarketplaceService.CreateBooking:input_type -> proto.CreateBookingRequest
-	12, // 10: proto.ChatService.GetHistory:input_type -> proto.GetHistoryRequest
-	15, // 11: proto.ChatService.SendMessage:input_type -> proto.SendMessageRequest
-	4,  // 12: proto.UserService.Register:output_type -> proto.AuthResponse
-	4,  // 13: proto.UserService.Login:output_type -> proto.AuthResponse
-	5,  // 14: proto.UserService.ValidateToken:output_type -> proto.UserResponse
-	5,  // 15: proto.UserService.GetUser:output_type -> proto.UserResponse
-	7,  // 16: proto.MarketplaceService.CreateService:output_type -> proto.ServiceResponse
-	9,  // 17: proto.MarketplaceService.GetServices:output_type -> proto.GetServicesResponse
-	11, // 18: proto.MarketplaceService.CreateBooking:output_type -> proto.BookingResponse
-	14, // 19: proto.ChatService.GetHistory:output_type -> proto.GetHistoryResponse
-	16, // 20: proto.ChatService.SendMessage:output_type -> proto.SendMessageResponse
-	12, // [12:21] is the sub-list for method output_type
-	3,  // [3:12] is the sub-list for method input_type
-	3,  // [3:3] is the sub-list for extension type_name
-	3,  // [3:3] is the sub-list for extension extendee
-	0,  // [0:3] is the sub-list for field type_name
+	2,  // 0: proto.ListProvidersResponse.providers:type_name -> proto.ProviderResponse
+	8,  // 1: proto.ProviderResponse.user:type_name -> proto.UserResponse
+	8,  // 2: proto.AuthResponse.user:type_name -> proto.UserResponse
+	10, // 3: proto.GetServicesResponse.services:type_name -> proto.ServiceResponse
+	16, // 4: proto.GetHistoryResponse.messages:type_name -> proto.Message
+	21, // 5: proto.ListBookingsResponse.bookings:type_name -> proto.BookingDetails
+	3,  // 6: proto.UserService.Register:input_type -> proto.RegisterRequest
+	4,  // 7: proto.UserService.Login:input_type -> proto.LoginRequest
+	5,  // 8: proto.UserService.ValidateToken:input_type -> proto.ValidateTokenRequest
+	6,  // 9: proto.UserService.GetUser:input_type -> proto.GetUserRequest
+	0,  // 10: proto.UserService.ListProviders:input_type -> proto.ListProvidersRequest
+	9,  // 11: proto.MarketplaceService.CreateService:input_type -> proto.CreateServiceRequest
+	11, // 12: proto.MarketplaceService.GetServices:input_type -> proto.GetServicesRequest
+	13, // 13: proto.MarketplaceService.CreateBooking:input_type -> proto.CreateBookingRequest
+	20, // 14: proto.MarketplaceService.ListBookings:input_type -> proto.ListBookingsRequest
+	23, // 15: proto.MarketplaceService.UpdateBookingStatus:input_type -> proto.UpdateBookingStatusRequest
+	15, // 16: proto.ChatService.GetHistory:input_type -> proto.GetHistoryRequest
+	18, // 17: proto.ChatService.SendMessage:input_type -> proto.SendMessageRequest
+	7,  // 18: proto.UserService.Register:output_type -> proto.AuthResponse
+	7,  // 19: proto.UserService.Login:output_type -> proto.AuthResponse
+	8,  // 20: proto.UserService.ValidateToken:output_type -> proto.UserResponse
+	8,  // 21: proto.UserService.GetUser:output_type -> proto.UserResponse
+	1,  // 22: proto.UserService.ListProviders:output_type -> proto.ListProvidersResponse
+	10, // 23: proto.MarketplaceService.CreateService:output_type -> proto.ServiceResponse
+	12, // 24: proto.MarketplaceService.GetServices:output_type -> proto.GetServicesResponse
+	14, // 25: proto.MarketplaceService.CreateBooking:output_type -> proto.BookingResponse
+	22, // 26: proto.MarketplaceService.ListBookings:output_type -> proto.ListBookingsResponse
+	14, // 27: proto.MarketplaceService.UpdateBookingStatus:output_type -> proto.BookingResponse
+	17, // 28: proto.ChatService.GetHistory:output_type -> proto.GetHistoryResponse
+	19, // 29: proto.ChatService.SendMessage:output_type -> proto.SendMessageResponse
+	18, // [18:30] is the sub-list for method output_type
+	6,  // [6:18] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_shared_proto_service_proto_init() }
@@ -1177,7 +1695,7 @@ func file_shared_proto_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_shared_proto_service_proto_rawDesc), len(file_shared_proto_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   17,
+			NumMessages:   24,
 			NumExtensions: 0,
 			NumServices:   3,
 		},

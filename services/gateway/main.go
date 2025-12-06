@@ -41,6 +41,21 @@ func main() {
 
 	r := gin.Default()
 
+	// CORS Config
+	r.Use(func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
+	})
+
 	// Serve Frontend
 	r.Static("/static", "./frontend/static")
 	r.StaticFile("/", "./frontend/index.html")
@@ -48,19 +63,26 @@ func main() {
 	// Public Routes
 	api := r.Group("/api")
 	{
-		api.POST("/register", handler.Register)
-		api.POST("/login", handler.Login)
+		api.GET("/services", handler.GetServices)
+		api.GET("/providers", handler.GetProviders)
+
+		auth := api.Group("/auth")
+		{
+			auth.POST("/register", handler.Register)
+			auth.POST("/login", handler.Login)
+		}
 	}
 
 	// Protected Routes
 	protected := api.Group("/")
 	protected.Use(AuthMiddleware(cfg))
 	{
-		protected.GET("/profile", handler.GetProfile)
+		protected.GET("/auth/me", handler.GetProfile) // Frontend calls /api/auth/me
 
 		protected.POST("/services", handler.CreateService)
-		protected.GET("/services", handler.GetServices)
 		protected.POST("/bookings", handler.CreateBooking)
+		protected.GET("/bookings", handler.GetBookings)
+		protected.PUT("/bookings/:id/status", handler.UpdateBookingStatus)
 
 		protected.GET("/chat/history", handler.GetChatHistory)
 	}
