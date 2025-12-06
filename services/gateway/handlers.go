@@ -180,3 +180,11 @@ func (h *Handler) GetChatHistory(c *gin.Context) {
 
 	c.JSON(http.StatusOK, res)
 }
+
+// HealthCheck returns the health status of the gateway service
+func (h *Handler) HealthCheck(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "healthy",
+		"service": "gateway",
+	})
+}

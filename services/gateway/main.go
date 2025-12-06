@@ -60,6 +60,9 @@ func main() {
 	r.Static("/static", "./frontend/static")
 	r.StaticFile("/", "./frontend/index.html")
 
+	// Health Check
+	r.GET("/health", handler.HealthCheck)
+
 	// Public Routes
 	api := r.Group("/api")
 	{
