@@ -41,6 +41,10 @@ func main() {
 
 	r := gin.Default()
 
+	// Serve Frontend
+	r.Static("/static", "./frontend/static")
+	r.StaticFile("/", "./frontend/index.html")
+
 	// Public Routes
 	api := r.Group("/api")
 	{

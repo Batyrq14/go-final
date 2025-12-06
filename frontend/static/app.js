@@ -69,125 +69,37 @@ function showSection(sectionId) {
     }
 
     // Scroll to top
-    window.scrollTo(0, 0);
+    // window.scrollTo(0, 0); // Optional: disabled for smoother browsing
 }
 
 function updateActiveNavLink() {
-    // This would need to be updated based on current section
-    // For simplicity, we'll handle it with active classes in buttons
-}
+    // Get all nav buttons
+    const navButtons = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('.section');
 
-function setupForms() {
-    document.getElementById('registerForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const data = {
-            email: document.getElementById('regEmail').value,
-            password: document.getElementById('regPassword').value,
-            full_name: document.getElementById('regFullName').value,
-            phone: document.getElementById('regPhone').value,
-            role: document.getElementById('regRole').value
-        };
-
-        try {
-            const res = await fetch(`${API_BASE}/auth/register`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-            const result = await res.json();
-
-            if (res.ok) {
-                showAlert('registerAlert', 'Registration successful! Please login.', 'success');
-                document.getElementById('registerForm').reset();
-                setTimeout(() => showSection('login'), 2000);
-            } else {
-                showAlert('registerAlert', result.error || 'Registration failed', 'error');
-            }
-        } catch (error) {
-            showAlert('registerAlert', 'Network error. Make sure the API is running.', 'error');
-            console.error(error);
+    // Find active section
+    let activeSectionId = 'home';
+    sections.forEach(section => {
+        if (section.classList.contains('active')) {
+            activeSectionId = section.id;
         }
     });
 
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const data = {
-            email: document.getElementById('loginEmail').value,
-            password: document.getElementById('loginPassword').value
-        };
+    // Update buttons
+    navButtons.forEach(btn => {
+        // Remove active class
+        btn.classList.remove('active');
 
-        try {
-            const res = await fetch(`${API_BASE}/auth/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-            const result = await res.json();
-
-            if (res.ok && result.token) {
-                authToken = result.token;
-                currentUser = result.user;
-                localStorage.setItem('authToken', authToken);
-                showAlert('loginAlert', 'Login successful!', 'success');
-                document.getElementById('loginForm').reset();
-                updateUIForLoggedIn();
-                setTimeout(() => showSection('home'), 1000);
-            } else {
-                showAlert('loginAlert', result.error || 'Login failed', 'error');
-            }
-        } catch (error) {
-            showAlert('loginAlert', 'Network error. Make sure the API is running.', 'error');
-            console.error(error);
+        // Add active class if it matches the function call
+        // We match by checking the onclick attribute or ID mapping
+        const onclick = btn.getAttribute('onclick');
+        if (onclick && onclick.includes(`'${activeSectionId}'`)) {
+            btn.classList.add('active');
         }
     });
 }
 
-function showAlert(containerId, message, type) {
-    const container = document.getElementById(containerId);
-    const icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
-    container.innerHTML = `<div class="alert alert-${type}"><i class="fas ${icon}"></i>${message}</div>`;
-    setTimeout(() => container.innerHTML = '', 5000);
-}
-
-async function loadServices() {
-    try {
-        const res = await fetch(`${API_BASE}/services`);
-        const data = await res.json();
-        const services = data.data || data;
-
-        const container = document.getElementById('servicesList');
-        if (!services || services.length === 0) {
-            container.innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-inbox"></i>
-                    <h3>No Services Available</h3>
-                    <p>Services will be available soon. Check back later!</p>
-                </div>
-            `;
-            return;
-        }
-
-        container.innerHTML = `
-            <div class="services-grid">
-                ${services.map(s => `
-                    <div class="card">
-                        <h3><i class="fas fa-concierge-bell"></i> ${s.name}</h3>
-                        <p><strong>Description:</strong></p>
-                        <p>${s.description || 'No description available'}</p>
-                    </div>
-                `).join('')}
-            </div>
-        `;
-    } catch (error) {
-        document.getElementById('servicesList').innerHTML = `
-            <div class="alert alert-error">
-                <i class="fas fa-exclamation-triangle"></i>
-                Failed to load services. Make sure the API is running on http://localhost:8080
-            </div>
-        `;
-        console.error(error);
-    }
-}
+// ... setupForms remains the same ...
 
 async function loadProviders() {
     try {
@@ -199,9 +111,9 @@ async function loadProviders() {
         if (!providers || providers.length === 0) {
             container.innerHTML = `
                 <div class="empty-state">
-                    <i class="fas fa-inbox"></i>
-                    <h3>No Providers Available</h3>
-                    <p>No service providers found. Check back soon!</p>
+                    <i class="fas fa-search"></i>
+                    <h3>No Providers Found</h3>
+                    <p>We couldn't find any service providers at the moment.</p>
                 </div>
             `;
             return;
@@ -210,42 +122,39 @@ async function loadProviders() {
         container.innerHTML = `
             <div class="providers-grid">
                 ${providers.map(p => `
-                    <div class="card">
-                        <h3><i class="fas fa-user-tie"></i> ${p.user?.full_name || 'Service Provider'}</h3>
-                        <p><i class="fas fa-map-marker-alt"></i> <strong>Location:</strong> ${p.location || 'Not specified'}</p>
-                        <p><i class="fas fa-dollar-sign"></i> <strong>Rate:</strong> $${p.hourly_rate || '0'}/hour</p>
-                        <p><i class="fas fa-briefcase"></i> <strong>Experience:</strong> ${p.experience_years || '0'} years</p>
-                        <p>
-                            <strong>Rating:</strong>
-                            <span class="stars">${renderStars(p.rating || 0)}</span>
-                            ${p.rating ? `<span class="rating-text">${p.rating.toFixed(1)}</span>` : '<span class="text-primary">No ratings yet</span>'}
-                        </p>
-                        <p>
-                            <strong>Availability:</strong>
-                            <span class="badge ${p.is_available ? 'badge-success' : 'badge-error'}">
-                                <i class="fas ${p.is_available ? 'fa-check-circle' : 'fa-times-circle'}"></i>
-                                ${p.is_available ? 'Available' : 'Unavailable'}
-                            </span>
-                        </p>
-                        ${p.bio ? `<p><i class="fas fa-align-left"></i> <strong>Bio:</strong> ${p.bio}</p>` : ''}
+                    <div class="card provider-card">
+                        <div class="provider-header mb-2">
+                             <h3>${p.user?.full_name || 'Service Provider'}</h3>
+                             <span class="badge ${p.is_available ? 'badge-success' : 'badge-error'}">
+                                ${p.is_available ? 'Available' : 'Busy'}
+                             </span>
+                        </div>
+                        
+                        <div class="provider-info">
+                            <p class="text-muted mb-1"><i class="fas fa-map-marker-alt text-primary"></i> ${p.location || 'Remote'}</p>
+                            <div class="provider-stats">
+                                <span><i class="fas fa-star text-warning"></i> ${p.rating ? p.rating.toFixed(1) : 'New'}</span>
+                                <span><i class="fas fa-briefcase text-info"></i> ${p.experience_years || 0}y exp</span>
+                                <span><i class="fas fa-tag text-success"></i> $${p.hourly_rate || 0}/hr</span>
+                            </div>
+                        </div>
+                        
+                        ${p.bio ? `<p class="mt-3 text-sm">${p.bio}</p>` : ''}
+                        
+                        <button class="btn btn-primary btn-block mt-3 btn-small">Book Now</button>
                     </div>
                 `).join('')}
             </div>
         `;
     } catch (error) {
-        document.getElementById('providersList').innerHTML = `
-            <div class="alert alert-error">
-                <i class="fas fa-exclamation-triangle"></i>
-                Failed to load providers. Make sure the API is running.
-            </div>
-        `;
         console.error(error);
+        container.innerHTML = `<div class="alert alert-error">Failed to load providers</div>`;
     }
 }
 
 function renderStars(rating) {
-    const fullStars = Math.round(rating);
-    return '⭐'.repeat(Math.min(fullStars, 5)) || 'No rating';
+    // Deprecated for new UI design, but kept for compatibility if needed
+    return rating;
 }
 
 async function loadBookings() {

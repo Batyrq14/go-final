@@ -1,18 +1,17 @@
 package config
 
 import (
-	"log"
 	"os"
 	"strconv"
 )
 
 type Config struct {
-	Port         string
-	DBUrl        string
-	RedisUrl     string
-	RabbitMQUrl  string
-	JWTSecret    string
-	Services     ServiceConfig
+	Port        string
+	DBUrl       string
+	RedisUrl    string
+	RabbitMQUrl string
+	JWTSecret   string
+	Services    ServiceConfig
 }
 
 type ServiceConfig struct {
@@ -24,7 +23,7 @@ type ServiceConfig struct {
 func Load() *Config {
 	return &Config{
 		Port:        getEnv("PORT", "8080"),
-		DBUrl:       getEnv("DATABASE_URL", "postgres://user:password@localhost:5432/qasynda?sslmode=disable"),
+		DBUrl:       getEnv("DATABASE_URL", "postgres://user:password@localhost:5433/qasynda?sslmode=disable"),
 		RedisUrl:    getEnv("REDIS_URL", "localhost:6379"),
 		RabbitMQUrl: getEnv("RABBITMQ_URL", "amqp://user:password@localhost:5672/"),
 		JWTSecret:   getEnv("JWT_SECRET", "very-secret-key"),

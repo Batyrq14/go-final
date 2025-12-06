@@ -18,14 +18,18 @@ docker-up:
 docker-down:
 	docker-compose down
 
+reset-db:
+	docker-compose down -v
+	docker-compose up -d
+
 run-gateway:
-	go run services/gateway/main.go
+	go run ./services/gateway
 
 run-user:
-	go run services/user/main.go
+	go run ./services/user
 
 run-marketplace:
-	go run services/marketplace/main.go
+	go run ./services/marketplace
 
 run-chat:
-	go run services/chat/main.go
+	go run ./services/chat
