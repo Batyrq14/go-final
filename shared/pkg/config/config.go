@@ -27,9 +27,9 @@ func Load() *Config {
 		RabbitMQUrl: getEnv("RABBITMQ_URL", "amqp://user:password@localhost:5672/"),
 		JWTSecret:   getEnv("JWT_SECRET", "very-secret-key"),
 		Services: ServiceConfig{
-			UserUrl:        getEnv("USER_SERVICE_URL", "localhost:50051"),
-			MarketplaceUrl: getEnv("MARKETPLACE_SERVICE_URL", "localhost:50052"),
-			ChatUrl:        getEnv("CHAT_SERVICE_URL", "localhost:50053"),
+			UserUrl:        getEnv("USER_SERVICE_URL", "http://localhost:50051"),
+			MarketplaceUrl: getEnv("MARKETPLACE_SERVICE_URL", "http://localhost:50052"),
+			ChatUrl:        getEnv("CHAT_SERVICE_URL", "http://localhost:50053"),
 		},
 	}
 }

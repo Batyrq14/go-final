@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	pb "qasynda/shared/proto"
+	"qasynda/shared/pkg/models"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,7 +19,7 @@ func NewHandler(clients *Clients) *Handler {
 }
 
 func (h *Handler) Register(c *gin.Context) {
-	var req pb.RegisterRequest
+	var req models.RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -35,7 +35,7 @@ func (h *Handler) Register(c *gin.Context) {
 }
 
 func (h *Handler) Login(c *gin.Context) {
-	var req pb.LoginRequest
+	var req models.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -52,7 +52,7 @@ func (h *Handler) Login(c *gin.Context) {
 
 func (h *Handler) GetProfile(c *gin.Context) {
 	userID := c.GetString("user_id")
-	res, err := h.clients.User.GetUser(context.Background(), &pb.GetUserRequest{UserId: userID})
+	res, err := h.clients.User.GetUser(context.Background(), &models.GetUserRequest{UserID: userID})
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
@@ -66,9 +66,9 @@ func (h *Handler) GetProviders(c *gin.Context) {
 	limit, _ := strconv.Atoi(limitStr)
 	offset, _ := strconv.Atoi(offsetStr)
 
-	res, err := h.clients.User.ListProviders(context.Background(), &pb.ListProvidersRequest{
-		Limit:  int32(limit),
-		Offset: int32(offset),
+	res, err := h.clients.User.ListProviders(context.Background(), &models.ListProvidersRequest{
+		Limit:  limit,
+		Offset: offset,
 	})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -79,12 +79,12 @@ func (h *Handler) GetProviders(c *gin.Context) {
 }
 
 func (h *Handler) CreateService(c *gin.Context) {
-	var req pb.CreateServiceRequest
+	var req models.CreateServiceRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	req.UserId = c.GetString("user_id")
+	req.UserID = c.GetString("user_id")
 
 	res, err := h.clients.Marketplace.CreateService(context.Background(), &req)
 	if err != nil {
@@ -96,9 +96,8 @@ func (h *Handler) CreateService(c *gin.Context) {
 }
 
 func (h *Handler) GetServices(c *gin.Context) {
-	// Check query params if any
 	category := c.Query("category")
-	res, err := h.clients.Marketplace.GetServices(context.Background(), &pb.GetServicesRequest{Category: category})
+	res, err := h.clients.Marketplace.GetServices(context.Background(), &models.GetServicesRequest{Category: category})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -108,12 +107,12 @@ func (h *Handler) GetServices(c *gin.Context) {
 }
 
 func (h *Handler) CreateBooking(c *gin.Context) {
-	var req pb.CreateBookingRequest
+	var req models.CreateBookingRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	req.UserId = c.GetString("user_id")
+	req.UserID = c.GetString("user_id")
 
 	res, err := h.clients.Marketplace.CreateBooking(context.Background(), &req)
 	if err != nil {
@@ -128,8 +127,8 @@ func (h *Handler) GetBookings(c *gin.Context) {
 	userId := c.GetString("user_id")
 	role := c.GetString("role")
 
-	res, err := h.clients.Marketplace.ListBookings(context.Background(), &pb.ListBookingsRequest{
-		UserId: userId,
+	res, err := h.clients.Marketplace.ListBookings(context.Background(), &models.ListBookingsRequest{
+		UserID: userId,
 		Role:   role,
 	})
 	if err != nil {
@@ -142,13 +141,13 @@ func (h *Handler) GetBookings(c *gin.Context) {
 
 func (h *Handler) UpdateBookingStatus(c *gin.Context) {
 	bookingID := c.Param("id")
-	var req pb.UpdateBookingStatusRequest
+	var req models.UpdateBookingStatusRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	req.BookingId = bookingID
-	req.UserId = c.GetString("user_id")
+	req.BookingID = bookingID
+	req.UserID = c.GetString("user_id")
 
 	res, err := h.clients.Marketplace.UpdateBookingStatus(context.Background(), &req)
 	if err != nil {
@@ -166,11 +165,11 @@ func (h *Handler) GetChatHistory(c *gin.Context) {
 	limit, _ := strconv.Atoi(limitStr)
 	offset, _ := strconv.Atoi(offsetStr)
 
-	req := &pb.GetHistoryRequest{
-		UserId_1: c.GetString("user_id"),
-		UserId_2: otherUserID,
-		Limit:    int32(limit),
-		Offset:   int32(offset),
+	req := &models.GetHistoryRequest{
+		UserID1: c.GetString("user_id"),
+		UserID2: otherUserID,
+		Limit:   limit,
+		Offset:  offset,
 	}
 
 	res, err := h.clients.Chat.GetHistory(context.Background(), req)

@@ -1,18 +1,13 @@
 package main
 
 import (
-	"net"
-	"net/http"
 	"os"
-	"os/signal"
-	"syscall"
 
 	"qasynda/shared/pkg/config"
 	"qasynda/shared/pkg/db"
 	"qasynda/shared/pkg/logger"
-	pb "qasynda/shared/proto"
 
-	"google.golang.org/grpc"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -33,7 +28,6 @@ func main() {
 	rmq, err := NewRabbitMQProducer(cfg.RabbitMQUrl)
 	if err != nil {
 		logger.Error("failed to connect to rabbitmq", err)
-		// Non-fatal for demo? Fatal is better.
 		os.Exit(1)
 	}
 	defer rmq.Close()
@@ -45,47 +39,24 @@ func main() {
 	hub := NewHub(store, rmq)
 	go hub.Run()
 
-	// WS Handler
-	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		ServeWs(hub, w, r)
+	// Init Server
+	server := NewServer(store)
+
+	// Init Gin
+	r := gin.Default()
+
+	// Define Routes
+	r.GET("/history", server.GetHistory)
+	r.GET("/ws", func(c *gin.Context) {
+		ServeWs(hub, c.Writer, c.Request)
 	})
 
-	// GRPC Server
-	port := config.GetChatPort()
-	lis, err := net.Listen("tcp", port)
-	if err != nil {
-		logger.Error("failed to listen", err)
+	// Use one port for both HTTP Routes and WS
+	port := config.GetChatPort() // e.g. :50053 (will be HTTP now)
+	logger.Info("Chat Service starting HTTP/WS on " + port)
+
+	if err := r.Run(port); err != nil {
+		logger.Error("failed to serve", err)
 		os.Exit(1)
 	}
-
-	s := grpc.NewServer()
-	pb.RegisterChatServiceServer(s, NewServer(store))
-
-	logger.Info("Chat Service (gRPC) starting on " + port)
-
-	go func() {
-		if err := s.Serve(lis); err != nil {
-			logger.Error("failed to serve grpc", err)
-			os.Exit(1)
-		}
-	}()
-
-	// HTTP Server for WS
-	// Use 8081 or verify if we can share port. We cannot share port easily.
-	wsPort := ":8081"
-	logger.Info("Chat Service (WS) starting on " + wsPort)
-	go func() {
-		if err := http.ListenAndServe(wsPort, nil); err != nil {
-			logger.Error("failed to serve http", err)
-			os.Exit(1)
-		}
-	}()
-
-	// Graceful shutdown
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
-
-	logger.Info("Shutting down Chat Service...")
-	s.GracefulStop()
 }

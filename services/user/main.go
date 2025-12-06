@@ -1,17 +1,13 @@
 package main
 
 import (
-	"net"
 	"os"
-	"os/signal"
-	"syscall"
 
 	"qasynda/shared/pkg/config"
 	"qasynda/shared/pkg/db"
 	"qasynda/shared/pkg/logger"
-	pb "qasynda/shared/proto"
 
-	"google.golang.org/grpc"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -28,38 +24,23 @@ func main() {
 
 	// Init Store
 	store := NewUserStore(database)
+	server := NewServer(store, cfg.JWTSecret)
 
-	// Init GRPC Server
-	lis, err := net.Listen("tcp", cfg.Services.UserUrl) // Assuming UserUrl is like "localhost:50051" or ":50051". Actually config default was localhost:50051. Listen needs :port
+	// Init Gin
+	r := gin.Default()
 
-	// Fix: Config returns full URL, but listen needs just port if running in container or host.
-	// We'll use getEnv(":50051") sort of logic elsewhere or just use :50051 if running locally.
-	// But docker-compose will network them.
-	// Let's rely on config.GetUserPort() I added earlier.
-	port := config.GetUserPort()
-	lis, err = net.Listen("tcp", port)
-	if err != nil {
-		logger.Error("failed to listen", err)
+	// Define Routes
+	r.POST("/register", server.Register)
+	r.POST("/login", server.Login)
+	r.POST("/validate", server.ValidateToken)
+	r.GET("/users/:id", server.GetUser)
+	r.GET("/providers", server.ListProviders)
+
+	port := config.GetUserPort() // e.g. :50051 (we might want to change this to a standard HTTP port like :8081 eventually, but keeping config port is fine for now)
+	logger.Info("User Service starting HTTP on " + port)
+
+	if err := r.Run(port); err != nil {
+		logger.Error("failed to serve", err)
 		os.Exit(1)
 	}
-
-	s := grpc.NewServer()
-	pb.RegisterUserServiceServer(s, NewServer(store, cfg.JWTSecret))
-
-	logger.Info("User Service starting on " + port)
-
-	go func() {
-		if err := s.Serve(lis); err != nil {
-			logger.Error("failed to serve", err)
-			os.Exit(1)
-		}
-	}()
-
-	// Graceful shutdown
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
-
-	logger.Info("Shutting down User Service...")
-	s.GracefulStop()
 }

@@ -1,17 +1,13 @@
 package main
 
 import (
-	"net"
 	"os"
-	"os/signal"
-	"syscall"
 
 	"qasynda/shared/pkg/config"
 	"qasynda/shared/pkg/db"
 	"qasynda/shared/pkg/logger"
-	pb "qasynda/shared/proto"
 
-	"google.golang.org/grpc"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -28,32 +24,23 @@ func main() {
 
 	// Init Store
 	store := NewStore(database)
+	server := NewServer(store)
 
-	// Init GRPC Server
-	port := config.GetMarketplacePort()
-	lis, err := net.Listen("tcp", port)
-	if err != nil {
-		logger.Error("failed to listen", err)
+	// Init Gin
+	r := gin.Default()
+
+	// Define Routes
+	r.GET("/services", server.GetServices)
+	r.POST("/services", server.CreateService)
+	r.GET("/bookings", server.ListBookings)
+	r.POST("/bookings", server.CreateBooking)
+	r.PUT("/bookings/:id/status", server.UpdateBookingStatus)
+
+	port := config.GetMarketplacePort() // e.g. :50052
+	logger.Info("Marketplace Service starting HTTP on " + port)
+
+	if err := r.Run(port); err != nil {
+		logger.Error("failed to serve", err)
 		os.Exit(1)
 	}
-
-	s := grpc.NewServer()
-	pb.RegisterMarketplaceServiceServer(s, NewServer(store))
-
-	logger.Info("Marketplace Service starting on " + port)
-
-	go func() {
-		if err := s.Serve(lis); err != nil {
-			logger.Error("failed to serve", err)
-			os.Exit(1)
-		}
-	}()
-
-	// Graceful shutdown
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
-
-	logger.Info("Shutting down Marketplace Service...")
-	s.GracefulStop()
 }

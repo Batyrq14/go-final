@@ -1,13 +1,6 @@
 PROJECT_NAME := qasynda
-PROTO_SRC := shared/proto
-PROTO_OUT := shared/proto
 
-.PHONY: proto clean docker-up docker-down
-
-proto:
-	protoc --go_out=. --go_opt=paths=source_relative \
-    --go-grpc_out=. --go-grpc_opt=paths=source_relative \
-    $(PROTO_SRC)/*.proto
+.PHONY: clean docker-up docker-down
 
 tidy:
 	go mod tidy

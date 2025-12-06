@@ -1,18 +1,17 @@
 package main
 
 import (
-	"context"
+	"net/http"
+	"strconv"
 
 	"qasynda/shared/pkg/logger"
-	pb "qasynda/shared/proto"
+	"qasynda/shared/pkg/models"
 
+	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 type Server struct {
-	pb.UnimplementedChatServiceServer
 	store *Store
 }
 
@@ -20,40 +19,45 @@ func NewServer(store *Store) *Server {
 	return &Server{store: store}
 }
 
-func (s *Server) GetHistory(ctx context.Context, req *pb.GetHistoryRequest) (*pb.GetHistoryResponse, error) {
-	u1, err := uuid.Parse(req.UserId_1)
+func (s *Server) GetHistory(c *gin.Context) {
+	userID1 := c.Query("user_id_1")
+	userID2 := c.Query("user_id_2")
+	limitStr := c.DefaultQuery("limit", "20")
+	offsetStr := c.DefaultQuery("offset", "0")
+
+	limit, _ := strconv.Atoi(limitStr)
+	offset, _ := strconv.Atoi(offsetStr)
+
+	u1, err := uuid.Parse(userID1)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid user id 1")
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user_id_1"})
+		return
 	}
-	u2, err := uuid.Parse(req.UserId_2)
+	u2, err := uuid.Parse(userID2)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid user id 2")
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user_id_2"})
+		return
 	}
 
-	messages, err := s.store.GetHistory(ctx, u1, u2, int(req.Limit), int(req.Offset))
+	messages, err := s.store.GetHistory(c.Request.Context(), u1, u2, limit, offset)
 	if err != nil {
 		logger.Error("failed to get history", err)
-		return nil, status.Error(codes.Internal, "internal error")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal error"})
+		return
 	}
 
-	var pbMessages []*pb.Message
+	var respMessages []*models.Message
 	for _, m := range messages {
-		pbMessages = append(pbMessages, &pb.Message{
-			Id:         m.ID.String(),
-			SenderId:   m.SenderID.String(),
-			ReceiverId: m.ReceiverID.String(),
+		respMessages = append(respMessages, &models.Message{
+			ID:         m.ID.String(),
+			SenderID:   m.SenderID.String(),
+			ReceiverID: m.ReceiverID.String(),
 			Content:    m.Content,
 			Timestamp:  m.CreatedAt.String(),
 		})
 	}
 
-	return &pb.GetHistoryResponse{
-		Messages: pbMessages,
-	}, nil
-}
-
-func (s *Server) SendMessage(ctx context.Context, req *pb.SendMessageRequest) (*pb.SendMessageResponse, error) {
-	// This RPC is optional if we use WS, but useful for bots or system messages.
-	// For now, implement basic save.
-	return nil, status.Error(codes.Unimplemented, "use websocket for sending messages")
+	c.JSON(http.StatusOK, &models.GetHistoryResponse{
+		Messages: respMessages,
+	})
 }
