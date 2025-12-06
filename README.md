@@ -11,6 +11,7 @@ Qasynda is a professional networking platform focused on local services. It allo
 - Booking system for scheduling appointments
 - Reviews & Ratings after service completion
 - Real-time notifications for booking requests
+- Chat service for direct communication between clients and providers
 
 ## Project Structure
 
