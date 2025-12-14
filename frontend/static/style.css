@@ -754,3 +754,144 @@ button {
     color: var(--text-main);
     margin: 0;
 }
+
+/* Status Toggle Switch */
+.status-toggle {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 32px;
+}
+
+.status-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #cbd5e1;
+    transition: var(--transition);
+    border-radius: 32px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 24px;
+    width: 24px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: var(--transition);
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.status-toggle input:checked+.toggle-slider {
+    background: linear-gradient(135deg, var(--success), #059669);
+}
+
+.status-toggle input:checked+.toggle-slider:before {
+    transform: translateX(28px);
+}
+
+.status-toggle input:focus+.toggle-slider {
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+/* Booking Actions */
+.booking-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-small {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+}
+
+.btn-success {
+    background: var(--success);
+    color: white;
+}
+
+.btn-success:hover {
+    background: #059669;
+    transform: translateY(-1px);
+}
+
+.btn-error {
+    background: var(--danger);
+    color: white;
+}
+
+.btn-error:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+}
+
+/* Booking Grid */
+.bookings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+}
+
+.booking-card {
+    position: relative;
+}
+
+.booking-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.booking-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.mb-1 {
+    margin-bottom: 0.25rem;
+}
+
+.mb-2 {
+    margin-bottom: 0.5rem;
+}
+
+.mt-3 {
+    margin-top: 0.75rem;
+}
+
+.text-xs {
+    font-size: 0.75rem;
+}
+
+.text-primary {
+    color: var(--primary);
+}
+
+.text-info {
+    color: #0ea5e9;
+}
+
+.text-warning {
+    color: var(--warning);
+}
+
+.text-success {
+    color: var(--success);
+}
+
+.text-error {
+    color: var(--danger);
+}

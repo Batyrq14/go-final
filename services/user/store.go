@@ -70,3 +70,26 @@ func (s *UserStore) ListProviders(limit, offset int) ([]*DetailedProvider, error
 	err := s.db.Select(&providers, query, limit, offset)
 	return providers, err
 }
+
+func (s *UserStore) UpdateProviderStatus(ctx context.Context, userID uuid.UUID, isAvailable bool) error {
+	query := `
+		UPDATE service_providers 
+		SET is_available = $1 
+		WHERE user_id = $2
+	`
+	_, err := s.db.ExecContext(ctx, query, isAvailable, userID)
+	return err
+}
+
+func (s *UserStore) GetProviderStatus(ctx context.Context, userID uuid.UUID) (bool, error) {
+	var isAvailable bool
+	query := `SELECT COALESCE(is_available, false) FROM service_providers WHERE user_id = $1`
+	err := s.db.GetContext(ctx, &isAvailable, query, userID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return false, nil
+		}
+		return false, err
+	}
+	return isAvailable, nil
+}

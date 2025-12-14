@@ -427,11 +427,12 @@ async function loadBookings() {
 
         const container = document.getElementById('bookingsList');
         if (!bookings || bookings.length === 0) {
+            const isProvider = currentUser.role === 'provider';
             container.innerHTML = `
                 <div class="empty-state">
                     <i class="fas fa-inbox"></i>
-                    <h3>No Bookings Yet</h3>
-                    <p>You haven't made or received any bookings yet.</p>
+                    <h3>No ${isProvider ? 'Requests' : 'Bookings'} Yet</h3>
+                    <p>You haven't ${isProvider ? 'received any booking requests' : 'made any bookings'} yet.</p>
                 </div>
             `;
             return;
@@ -439,35 +440,79 @@ async function loadBookings() {
 
         const isProvider = currentUser.role === 'provider';
 
-        container.innerHTML = `
-            <div class="bookings-grid">
-                ${bookings.map(b => `
-                    <div class="card booking-card">
-                        <div class="booking-header mb-2">
-                             <h3><i class="fas fa-calendar-alt"></i> ${new Date(b.scheduled_time).toLocaleDateString()}</h3>
-                             <span class="badge badge-${getStatusColor(b.status)}">
-                                <i class="fas ${getStatusIcon(b.status)}"></i>
-                                ${b.status}
-                             </span>
-                        </div>
-                        <p><i class="fas fa-clock"></i> <strong>Time:</strong> ${new Date(b.scheduled_time).toLocaleTimeString()}</p>
-                        <p><i class="fas fa-tools"></i> <strong>Service:</strong> ${b.service_title || b.service_id}</p>
-                        <p><i class="fas ${isProvider ? 'fa-user' : 'fa-user-tie'}"></i> <strong>${isProvider ? 'Client' : 'Provider'}:</strong> ${b.other_party_name || (isProvider ? b.client_id : b.provider_id)}</p>
-                        ${b.status === 'pending' && isProvider ? `
-                            <div class="booking-actions mt-3">
-                                <button class="btn btn-success btn-small" onclick="updateBookingStatus('${b.id}', 'confirmed')"><i class="fas fa-check"></i> Accept</button>
-                                <button class="btn btn-error btn-small" onclick="updateBookingStatus('${b.id}', 'rejected')"><i class="fas fa-times"></i> Reject</button>
+        // Separate pending requests for providers
+        const pendingRequests = isProvider ? bookings.filter(b => b.status === 'pending') : [];
+        const otherBookings = isProvider ? bookings.filter(b => b.status !== 'pending') : bookings;
+
+        let html = '';
+
+        // Show pending requests prominently for providers
+        if (isProvider && pendingRequests.length > 0) {
+            html += `
+                <div class="requests-section" style="margin-bottom: 32px;">
+                    <h3 style="color: var(--warning); margin-bottom: 16px;">
+                        <i class="fas fa-bell"></i> Pending Requests (${pendingRequests.length})
+                    </h3>
+                    <div class="bookings-grid">
+                        ${pendingRequests.map(b => `
+                            <div class="card booking-card" style="border-left: 4px solid var(--warning);">
+                                <div class="booking-header mb-2">
+                                    <h3><i class="fas fa-calendar-alt"></i> ${new Date(b.scheduled_time).toLocaleDateString()}</h3>
+                                    <span class="badge badge-warning">
+                                        <i class="fas fa-clock"></i> Pending
+                                    </span>
+                                </div>
+                                <p><i class="fas fa-clock"></i> <strong>Time:</strong> ${new Date(b.scheduled_time).toLocaleTimeString()}</p>
+                                <p><i class="fas fa-tools"></i> <strong>Service:</strong> ${b.service_title || b.service_id}</p>
+                                <p><i class="fas fa-user"></i> <strong>Client:</strong> ${b.other_party_name || b.client_id}</p>
+                                <div class="booking-actions mt-3" style="display: flex; gap: 8px;">
+                                    <button class="btn btn-success btn-small" style="flex: 1;" onclick="updateBookingStatus('${b.id}', 'confirmed')">
+                                        <i class="fas fa-check"></i> Accept
+                                    </button>
+                                    <button class="btn btn-error btn-small" style="flex: 1;" onclick="updateBookingStatus('${b.id}', 'rejected')">
+                                        <i class="fas fa-times"></i> Reject
+                                    </button>
+                                </div>
                             </div>
-                        ` : ''}
-                        ${b.status === 'confirmed' && isProvider ? `
-                             <div class="booking-actions mt-3">
-                                <button class="btn btn-primary btn-small" onclick="updateBookingStatus('${b.id}', 'completed')"><i class="fas fa-check-double"></i> Mark Completed</button>
-                            </div>
-                        ` : ''}
+                        `).join('')}
                     </div>
-                `).join('')}
-            </div>
-        `;
+                </div>
+            `;
+        }
+
+        // Show other bookings
+        if (otherBookings.length > 0) {
+            html += `
+                <div class="bookings-section">
+                    ${isProvider && pendingRequests.length > 0 ? '<h3 style="margin-bottom: 16px;"><i class="fas fa-history"></i> Booking History</h3>' : ''}
+                    <div class="bookings-grid">
+                        ${otherBookings.map(b => `
+                            <div class="card booking-card">
+                                <div class="booking-header mb-2">
+                                    <h3><i class="fas fa-calendar-alt"></i> ${new Date(b.scheduled_time).toLocaleDateString()}</h3>
+                                    <span class="badge badge-${getStatusColor(b.status)}">
+                                        <i class="fas ${getStatusIcon(b.status)}"></i>
+                                        ${b.status}
+                                    </span>
+                                </div>
+                                <p><i class="fas fa-clock"></i> <strong>Time:</strong> ${new Date(b.scheduled_time).toLocaleTimeString()}</p>
+                                <p><i class="fas fa-tools"></i> <strong>Service:</strong> ${b.service_title || b.service_id}</p>
+                                <p><i class="fas ${isProvider ? 'fa-user' : 'fa-user-tie'}"></i> <strong>${isProvider ? 'Client' : 'Provider'}:</strong> ${b.other_party_name || (isProvider ? b.client_id : b.provider_id)}</p>
+                                ${b.status === 'confirmed' && isProvider ? `
+                                    <div class="booking-actions mt-3">
+                                        <button class="btn btn-primary btn-small" onclick="updateBookingStatus('${b.id}', 'completed')">
+                                            <i class="fas fa-check-double"></i> Mark Completed
+                                        </button>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        container.innerHTML = html;
     } catch (error) {
         document.getElementById('bookingsList').innerHTML = `
             <div class="alert alert-error">
@@ -543,13 +588,44 @@ async function loadProfile() {
         });
         const user = await res.json();
 
-
-
         const createdDate = new Date(user.created_at).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
             day: 'numeric'
         });
+
+        // Get provider status if user is a provider
+        let providerStatusHTML = '';
+        if (user.role === 'provider') {
+            try {
+                const statusRes = await fetch(`${API_BASE}/providers/status`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const statusData = await statusRes.json();
+                const isAvailable = statusData.is_available || false;
+
+                providerStatusHTML = `
+                    <div class="card mt-4" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);">
+                        <h3 style="margin-bottom: 16px;"><i class="fas fa-toggle-on"></i> Provider Status</h3>
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div>
+                                <p style="margin: 0; font-weight: 600; color: ${isAvailable ? 'var(--success)' : 'var(--warning)'};">
+                                    <i class="fas fa-circle" style="font-size: 0.6em;"></i> 
+                                    ${isAvailable ? 'Available for Bookings' : 'Busy - Not Accepting Bookings'}
+                                </p>
+                                <p style="margin: 4px 0 0 0; font-size: 0.9em; color: var(--text-muted);">Toggle your availability status</p>
+                            </div>
+                            <label class="status-toggle">
+                                <input type="checkbox" id="statusToggle" ${isAvailable ? 'checked' : ''} onchange="toggleProviderStatus()">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                `;
+            } catch (err) {
+                console.error('Failed to load provider status:', err);
+            }
+        }
 
         document.getElementById('profileContent').innerHTML = `
             <div class="profile-header-card card">
@@ -565,6 +641,8 @@ async function loadProfile() {
                     </span>
                 </div>
             </div>
+            
+            ${providerStatusHTML}
             
             <div class="profile-details-grid mt-4">
                  <div class="card detail-card">
@@ -604,6 +682,36 @@ async function loadProfile() {
             </div>
         `;
         console.error(error);
+    }
+}
+
+async function toggleProviderStatus() {
+    const toggle = document.getElementById('statusToggle');
+    const isAvailable = toggle.checked;
+
+    try {
+        const res = await fetch(`${API_BASE}/providers/status`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            },
+            body: JSON.stringify({ is_available: isAvailable })
+        });
+
+        if (res.ok) {
+            // Reload profile to update UI
+            loadProfile();
+            // Also reload providers list if visible
+            loadProviders();
+        } else {
+            alert('Failed to update status');
+            toggle.checked = !isAvailable; // Revert
+        }
+    } catch (e) {
+        console.error(e);
+        alert('Network error while updating status');
+        toggle.checked = !isAvailable; // Revert
     }
 }
 

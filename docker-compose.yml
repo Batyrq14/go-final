@@ -25,17 +25,6 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: user
       RABBITMQ_DEFAULT_PASS: password
-  # We will add service definitions here later or run them locally for development
-  # gateway:
-  #   build:
-  #     context: .
-  #     dockerfile: services/gateway/Dockerfile
-  #   ports:
-  #     - "8080:8080"
-  #   depends_on:
-  #     - user-service
-  #     - marketplace-service
-  #     - chat-service
 
 volumes:
   postgres_data:

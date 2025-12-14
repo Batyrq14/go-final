@@ -180,3 +180,34 @@ func (h *Handler) GetChatHistory(c *gin.Context) {
 
 	c.JSON(http.StatusOK, res)
 }
+
+func (h *Handler) UpdateProviderStatus(c *gin.Context) {
+	userID := c.GetString("user_id")
+	var req struct {
+		IsAvailable bool `json:"is_available"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	res, err := h.clients.User.UpdateProviderStatus(context.Background(), userID, req.IsAvailable)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
+}
+
+func (h *Handler) GetProviderStatus(c *gin.Context) {
+	userID := c.GetString("user_id")
+
+	res, err := h.clients.User.GetProviderStatus(context.Background(), userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
+}

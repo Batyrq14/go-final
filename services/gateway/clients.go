@@ -59,6 +59,17 @@ func (c *UserClient) ListProviders(ctx context.Context, req *models.ListProvider
 	return doGet[models.ListProvidersResponse](c.Client, url)
 }
 
+func (c *UserClient) UpdateProviderStatus(ctx context.Context, userID string, isAvailable bool) (*map[string]interface{}, error) {
+	url := fmt.Sprintf("%s/providers/%s/status", c.BaseURL, userID)
+	reqBody := map[string]bool{"is_available": isAvailable}
+	return doPut[map[string]bool, map[string]interface{}](c.Client, url, &reqBody)
+}
+
+func (c *UserClient) GetProviderStatus(ctx context.Context, userID string) (*map[string]interface{}, error) {
+	url := fmt.Sprintf("%s/providers/%s/status", c.BaseURL, userID)
+	return doGet[map[string]interface{}](c.Client, url)
+}
+
 // Marketplace Client
 type MarketplaceClient struct {
 	BaseURL string

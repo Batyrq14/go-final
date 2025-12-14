@@ -254,3 +254,46 @@ func (s *Server) ListProviders(c *gin.Context) {
 
 	c.JSON(http.StatusOK, &models.ListProvidersResponse{Providers: respProviders})
 }
+
+func (s *Server) UpdateProviderStatus(c *gin.Context) {
+	var req struct {
+		IsAvailable bool `json:"is_available"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	userIDStr := c.Param("id")
+	userID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user id"})
+		return
+	}
+
+	if err := s.store.UpdateProviderStatus(c.Request.Context(), userID, req.IsAvailable); err != nil {
+		logger.Error("failed to update provider status", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal error"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"is_available": req.IsAvailable})
+}
+
+func (s *Server) GetProviderStatus(c *gin.Context) {
+	userIDStr := c.Param("id")
+	userID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user id"})
+		return
+	}
+
+	isAvailable, err := s.store.GetProviderStatus(c.Request.Context(), userID)
+	if err != nil {
+		logger.Error("failed to get provider status", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal error"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"is_available": isAvailable})
+}

@@ -35,6 +35,8 @@ func main() {
 	r.POST("/validate", server.ValidateToken)
 	r.GET("/users/:id", server.GetUser)
 	r.GET("/providers", server.ListProviders)
+	r.PUT("/providers/:id/status", server.UpdateProviderStatus)
+	r.GET("/providers/:id/status", server.GetProviderStatus)
 
 	port := config.GetUserPort() // e.g. :50051 (we might want to change this to a standard HTTP port like :8081 eventually, but keeping config port is fine for now)
 	logger.Info("User Service starting HTTP on " + port)

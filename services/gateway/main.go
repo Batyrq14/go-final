@@ -84,6 +84,9 @@ func main() {
 		protected.GET("/bookings", handler.GetBookings)
 		protected.PUT("/bookings/:id/status", handler.UpdateBookingStatus)
 
+		protected.PUT("/providers/status", handler.UpdateProviderStatus)
+		protected.GET("/providers/status", handler.GetProviderStatus)
+
 		protected.GET("/chat/history", handler.GetChatHistory)
 	}
 
