@@ -25,8 +25,23 @@ func (s *Server) GetHistory(c *gin.Context) {
 	limitStr := c.DefaultQuery("limit", "20")
 	offsetStr := c.DefaultQuery("offset", "0")
 
-	limit, _ := strconv.Atoi(limitStr)
-	offset, _ := strconv.Atoi(offsetStr)
+	if userID1 == "" || userID2 == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "user_id_1 and user_id_2 are required"})
+		return
+	}
+
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil || limit <= 0 {
+		limit = 20
+	}
+	if limit > 200 {
+		limit = 200
+	}
+
+	offset, err := strconv.Atoi(offsetStr)
+	if err != nil || offset < 0 {
+		offset = 0
+	}
 
 	u1, err := uuid.Parse(userID1)
 	if err != nil {

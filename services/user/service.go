@@ -33,6 +33,20 @@ func (s *Server) Register(c *gin.Context) {
 		return
 	}
 
+	// Basic input validation
+	if req.Email == "" || req.Password == "" || req.FullName == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "email, password and full_name are required"})
+		return
+	}
+	if len(req.Password) < 8 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "password must be at least 8 characters"})
+		return
+	}
+	if req.Role != "client" && req.Role != "provider" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "role must be either 'client' or 'provider'"})
+		return
+	}
+
 	existing, err := s.store.GetByEmail(c.Request.Context(), req.Email)
 	if err != nil {
 		logger.Error("failed to check existing user", err)
@@ -98,6 +112,11 @@ func (s *Server) Login(c *gin.Context) {
 	var req models.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if req.Email == "" || req.Password == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "email and password are required"})
 		return
 	}
 
@@ -222,8 +241,18 @@ func (s *Server) GetUser(c *gin.Context) {
 func (s *Server) ListProviders(c *gin.Context) {
 	limitStr := c.DefaultQuery("limit", "10")
 	offsetStr := c.DefaultQuery("offset", "0")
-	limit, _ := strconv.Atoi(limitStr)
-	offset, _ := strconv.Atoi(offsetStr)
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil || limit <= 0 {
+		limit = 10
+	}
+	if limit > 100 {
+		limit = 100
+	}
+
+	offset, err := strconv.Atoi(offsetStr)
+	if err != nil || offset < 0 {
+		offset = 0
+	}
 
 	providers, err := s.store.ListProviders(limit, offset)
 	if err != nil {

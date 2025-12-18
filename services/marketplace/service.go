@@ -26,6 +26,15 @@ func (s *Server) CreateService(c *gin.Context) {
 		return
 	}
 
+	if req.Title == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "title is required"})
+		return
+	}
+	if len(req.Description) < 10 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "description must be at least 10 characters"})
+		return
+	}
+
 	id := uuid.New()
 	service := &Service{
 		ID:          id,
@@ -134,11 +143,9 @@ func (s *Server) ListBookings(c *gin.Context) {
 	userID := c.Query("user_id")
 	role := c.Query("role")
 
-	if userID == "" {
-		// Try JSON body if query is empty? (For compatibility with our gateway client)
-		// Or just stick to one. REST standard is Query params for GET.
-		// Our implementation plan client code might send body or query?
-		// Let's support both or just Query.
+	if userID == "" || role == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "user_id and role are required"})
+		return
 	}
 
 	bookings, err := s.store.ListBookings(c.Request.Context(), userID, role)
@@ -173,6 +180,14 @@ func (s *Server) UpdateBookingStatus(c *gin.Context) {
 	var req models.UpdateBookingStatusRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Basic status validation to avoid invalid transitions being stored
+	switch req.Status {
+	case "pending", "accepted", "rejected", "completed", "cancelled":
+	default:
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid booking status"})
 		return
 	}
 
