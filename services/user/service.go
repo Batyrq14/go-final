@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"time"
 
+	"strings"
+
 	"qasynda/shared/pkg/auth"
 	"qasynda/shared/pkg/logger"
 	"qasynda/shared/pkg/models"
@@ -33,9 +35,13 @@ func (s *Server) Register(c *gin.Context) {
 		return
 	}
 
-	// Basic input validation
-	if req.Email == "" || req.Password == "" || req.FullName == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "email, password and full_name are required"})
+	// Basic validation to avoid storing obviously invalid data
+	req.Email = strings.TrimSpace(req.Email)
+	req.FullName = strings.TrimSpace(req.FullName)
+	req.Phone = strings.TrimSpace(req.Phone)
+
+	if req.Email == "" || req.Password == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "email and password are required"})
 		return
 	}
 	if len(req.Password) < 8 {
@@ -115,6 +121,7 @@ func (s *Server) Login(c *gin.Context) {
 		return
 	}
 
+	req.Email = strings.TrimSpace(req.Email)
 	if req.Email == "" || req.Password == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "email and password are required"})
 		return
@@ -245,6 +252,7 @@ func (s *Server) ListProviders(c *gin.Context) {
 	if err != nil || limit <= 0 {
 		limit = 10
 	}
+	// Protect the database from very large limits
 	if limit > 100 {
 		limit = 100
 	}

@@ -4,7 +4,9 @@ import (
 	"net/http"
 	"time"
 
-	"qasynda/shared/pkg/logger"
+	"strings"
+
+	"qysady/shared/pkg/logger"
 	"qasynda/shared/pkg/models"
 
 	"github.com/gin-gonic/gin"
@@ -26,12 +28,14 @@ func (s *Server) CreateService(c *gin.Context) {
 		return
 	}
 
+	req.Title = strings.TrimSpace(req.Title)
+	req.Description = strings.TrimSpace(req.Description)
 	if req.Title == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "title is required"})
 		return
 	}
-	if len(req.Description) < 10 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "description must be at least 10 characters"})
+	if len(req.Description) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "description is required"})
 		return
 	}
 
@@ -84,6 +88,11 @@ func (s *Server) CreateBooking(c *gin.Context) {
 	var req models.CreateBookingRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if req.ServiceID == "" || req.UserID == "" || req.ProviderID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "service_id, user_id and provider_id are required"})
 		return
 	}
 
@@ -143,8 +152,12 @@ func (s *Server) ListBookings(c *gin.Context) {
 	userID := c.Query("user_id")
 	role := c.Query("role")
 
-	if userID == "" || role == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "user_id and role are required"})
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "user_id is required"})
+		return
+	}
+	if role != "client" && role != "provider" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "role must be either 'client' or 'provider'"})
 		return
 	}
 
@@ -180,14 +193,6 @@ func (s *Server) UpdateBookingStatus(c *gin.Context) {
 	var req models.UpdateBookingStatusRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	// Basic status validation to avoid invalid transitions being stored
-	switch req.Status {
-	case "pending", "accepted", "rejected", "completed", "cancelled":
-	default:
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid booking status"})
 		return
 	}
 

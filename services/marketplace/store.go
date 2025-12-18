@@ -41,6 +41,10 @@ func (s *Store) CreateBooking(ctx context.Context, booking *Booking) error {
 
 func (s *Store) ListBookings(ctx context.Context, userID string, role string) ([]*Booking, error) {
 	var bookings []*Booking
+	// Protect against accidental full table scans if userID is empty
+	if userID == "" {
+		return []*Booking{}, nil
+	}
 	var query string
 	if role == "provider" {
 		query = `SELECT * FROM bookings WHERE provider_id = $1 ORDER BY created_at DESC`

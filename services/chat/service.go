@@ -34,8 +34,8 @@ func (s *Server) GetHistory(c *gin.Context) {
 	if err != nil || limit <= 0 {
 		limit = 20
 	}
-	if limit > 200 {
-		limit = 200
+	if limit > 100 {
+		limit = 100
 	}
 
 	offset, err := strconv.Atoi(offsetStr)

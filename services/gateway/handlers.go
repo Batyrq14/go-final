@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"qasynda/shared/pkg/logger"
 	"qasynda/shared/pkg/models"
 
 	"github.com/gin-gonic/gin"
@@ -26,11 +25,9 @@ func (h *Handler) Register(c *gin.Context) {
 		return
 	}
 
-	ctx := c.Request.Context()
-	res, err := h.clients.User.Register(ctx, &req)
+	res, err := h.clients.User.Register(c.Request.Context(), &req)
 	if err != nil {
-		logger.Error("gateway: register failed", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to register user"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -44,11 +41,9 @@ func (h *Handler) Login(c *gin.Context) {
 		return
 	}
 
-	ctx := c.Request.Context()
-	res, err := h.clients.User.Login(ctx, &req)
+	res, err := h.clients.User.Login(c.Request.Context(), &req)
 	if err != nil {
-		logger.Error("gateway: login failed", err)
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -57,11 +52,9 @@ func (h *Handler) Login(c *gin.Context) {
 
 func (h *Handler) GetProfile(c *gin.Context) {
 	userID := c.GetString("user_id")
-	ctx := c.Request.Context()
-	res, err := h.clients.User.GetUser(ctx, &models.GetUserRequest{UserID: userID})
+	res, err := h.clients.User.GetUser(c.Request.Context(), &models.GetUserRequest{UserID: userID})
 	if err != nil {
-		logger.Error("gateway: get profile failed", err)
-		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, res)
@@ -73,8 +66,7 @@ func (h *Handler) GetProviders(c *gin.Context) {
 	limit, _ := strconv.Atoi(limitStr)
 	offset, _ := strconv.Atoi(offsetStr)
 
-	ctx := c.Request.Context()
-	res, err := h.clients.User.ListProviders(ctx, &models.ListProvidersRequest{
+	res, err := h.clients.User.ListProviders(c.Request.Context(), &models.ListProvidersRequest{
 		Limit:  limit,
 		Offset: offset,
 	})
@@ -94,11 +86,9 @@ func (h *Handler) CreateService(c *gin.Context) {
 	}
 	req.UserID = c.GetString("user_id")
 
-	ctx := c.Request.Context()
-	res, err := h.clients.Marketplace.CreateService(ctx, &req)
+	res, err := h.clients.Marketplace.CreateService(c.Request.Context(), &req)
 	if err != nil {
-		logger.Error("gateway: create service failed", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create service"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -107,11 +97,9 @@ func (h *Handler) CreateService(c *gin.Context) {
 
 func (h *Handler) GetServices(c *gin.Context) {
 	category := c.Query("category")
-	ctx := c.Request.Context()
-	res, err := h.clients.Marketplace.GetServices(ctx, &models.GetServicesRequest{Category: category})
+	res, err := h.clients.Marketplace.GetServices(c.Request.Context(), &models.GetServicesRequest{Category: category})
 	if err != nil {
-		logger.Error("gateway: get services failed", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to load services"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -126,11 +114,9 @@ func (h *Handler) CreateBooking(c *gin.Context) {
 	}
 	req.UserID = c.GetString("user_id")
 
-	ctx := c.Request.Context()
-	res, err := h.clients.Marketplace.CreateBooking(ctx, &req)
+	res, err := h.clients.Marketplace.CreateBooking(c.Request.Context(), &req)
 	if err != nil {
-		logger.Error("gateway: create booking failed", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create booking"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -141,8 +127,7 @@ func (h *Handler) GetBookings(c *gin.Context) {
 	userId := c.GetString("user_id")
 	role := c.GetString("role")
 
-	ctx := c.Request.Context()
-	res, err := h.clients.Marketplace.ListBookings(ctx, &models.ListBookingsRequest{
+	res, err := h.clients.Marketplace.ListBookings(c.Request.Context(), &models.ListBookingsRequest{
 		UserID: userId,
 		Role:   role,
 	})
@@ -164,11 +149,9 @@ func (h *Handler) UpdateBookingStatus(c *gin.Context) {
 	req.BookingID = bookingID
 	req.UserID = c.GetString("user_id")
 
-	ctx := c.Request.Context()
-	res, err := h.clients.Marketplace.UpdateBookingStatus(ctx, &req)
+	res, err := h.clients.Marketplace.UpdateBookingStatus(c.Request.Context(), &req)
 	if err != nil {
-		logger.Error("gateway: update booking status failed", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update booking status"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -177,10 +160,6 @@ func (h *Handler) UpdateBookingStatus(c *gin.Context) {
 
 func (h *Handler) GetChatHistory(c *gin.Context) {
 	otherUserID := c.Query("other_user_id")
-	if otherUserID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "other_user_id is required"})
-		return
-	}
 	limitStr := c.DefaultQuery("limit", "20")
 	offsetStr := c.DefaultQuery("offset", "0")
 	limit, _ := strconv.Atoi(limitStr)
@@ -193,11 +172,9 @@ func (h *Handler) GetChatHistory(c *gin.Context) {
 		Offset:  offset,
 	}
 
-	ctx := c.Request.Context()
-	res, err := h.clients.Chat.GetHistory(ctx, req)
+	res, err := h.clients.Chat.GetHistory(c.Request.Context(), req)
 	if err != nil {
-		logger.Error("gateway: get chat history failed", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to load chat history"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
