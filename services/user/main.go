@@ -1,7 +1,12 @@
 package main
 
 import (
+	"context"
+	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"qasynda/shared/pkg/config"
 	"qasynda/shared/pkg/db"
@@ -14,7 +19,6 @@ func main() {
 	logger.Init()
 	cfg := config.Load()
 
-	// Connect to DB
 	database, err := db.Connect(cfg.DBUrl)
 	if err != nil {
 		logger.Error("failed to connect to db", err)
@@ -22,14 +26,11 @@ func main() {
 	}
 	defer database.Close()
 
-	// Init Store
 	store := NewUserStore(database)
 	server := NewServer(store, cfg.JWTSecret)
 
-	// Init Gin
 	r := gin.Default()
 
-	// Define Routes
 	r.POST("/register", server.Register)
 	r.POST("/login", server.Login)
 	r.POST("/validate", server.ValidateToken)
@@ -38,11 +39,30 @@ func main() {
 	r.PUT("/providers/:id/status", server.UpdateProviderStatus)
 	r.GET("/providers/:id/status", server.GetProviderStatus)
 
-	port := config.GetUserPort() // e.g. :50051 (we might want to change this to a standard HTTP port like :8081 eventually, but keeping config port is fine for now)
-	logger.Info("User Service starting HTTP on " + port)
-
-	if err := r.Run(port); err != nil {
-		logger.Error("failed to serve", err)
-		os.Exit(1)
+	port := config.GetUserPort()
+	srv := &http.Server{
+		Addr:    port,
+		Handler: r,
 	}
+
+	go func() {
+		logger.Info("User Service starting HTTP on " + port)
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			logger.Error("failed to serve", err)
+		}
+	}()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	logger.Info("Shutting down User Service...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := srv.Shutdown(ctx); err != nil {
+		logger.Error("User Service forced to shutdown", err)
+	}
+
+	logger.Info("User Service exiting")
 }

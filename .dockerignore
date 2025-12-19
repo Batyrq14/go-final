@@ -52,6 +52,3 @@ docker-compose.yml
 # Tests
 tests/
 
-# Keep web directory for serving static files
-!web/
-

@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"log"
 
 	"qasynda/shared/pkg/logger"
 
@@ -28,12 +27,12 @@ func NewRabbitMQProducer(url string) (*RabbitMQProducer, error) {
 	}
 
 	q, err := ch.QueueDeclare(
-		"chat_messages", // name
-		true,            // durable
-		false,           // delete when unused
-		false,           // exclusive
-		false,           // no-wait
-		nil,             // arguments
+		"chat_messages",
+		true,
+		false,
+		false,
+		false,
+		nil,
 	)
 	if err != nil {
 		return nil, err
@@ -54,10 +53,10 @@ func (p *RabbitMQProducer) PublishMessage(msg *Message) error {
 
 	return p.ch.PublishWithContext(
 		context.Background(),
-		"",       // exchange
-		p.q.Name, // routing key
-		false,    // mandatory
-		false,    // immediate
+		"",
+		p.q.Name,
+		false,
+		false,
 		amqp.Publishing{
 			ContentType: "application/json",
 			Body:        body,
@@ -69,8 +68,7 @@ func (p *RabbitMQProducer) Close() {
 	p.conn.Close()
 }
 
-// Consumer that writes to DB
-func StartConsumer(url string, store *Store) {
+func StartConsumer(ctx context.Context, url string, store *Store) {
 	conn, err := amqp.Dial(url)
 	if err != nil {
 		logger.Error("failed to connect to rabbitmq consumer", err)
@@ -86,12 +84,12 @@ func StartConsumer(url string, store *Store) {
 	defer ch.Close()
 
 	q, err := ch.QueueDeclare(
-		"chat_messages", // name
-		true,            // durable
-		false,           // delete when unused
-		false,           // exclusive
-		false,           // no-wait
-		nil,             // arguments
+		"chat_messages",
+		true,
+		false,
+		false,
+		false,
+		nil,
 	)
 	if err != nil {
 		logger.Error("failed to declare queue", err)
@@ -99,36 +97,40 @@ func StartConsumer(url string, store *Store) {
 	}
 
 	msgs, err := ch.Consume(
-		q.Name, // queue
-		"",     // consumer
-		true,   // auto-ack
-		false,  // exclusive
-		false,  // no-local
-		false,  // no-wait
-		nil,    // args
+		q.Name,
+		"",
+		true,
+		false,
+		false,
+		false,
+		nil,
 	)
 	if err != nil {
 		logger.Error("failed to register consumer", err)
 		return
 	}
 
-	forever := make(chan bool)
+	logger.Info("Chat Consumer started")
 
-	go func() {
-		for d := range msgs {
+	for {
+		select {
+		case <-ctx.Done():
+			logger.Info("Chat Consumer stopping...")
+			return
+		case d, ok := <-msgs:
+			if !ok {
+				logger.Info("Chat Consumer channel closed")
+				return
+			}
 			var msg Message
 			if err := json.Unmarshal(d.Body, &msg); err != nil {
 				logger.Error("failed to unmarshal message", err)
 				continue
 			}
 
-			// Save to DB
 			if err := store.SaveMessage(context.Background(), &msg); err != nil {
 				logger.Error("failed to save message to db", err)
 			}
 		}
-	}()
-
-	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
-	<-forever
+	}
 }

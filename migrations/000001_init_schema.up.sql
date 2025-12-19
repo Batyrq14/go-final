@@ -1,11 +1,11 @@
--- Enable UUID extension
+
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Create enum types
+
 CREATE TYPE user_role AS ENUM ('client', 'provider', 'admin');
 CREATE TYPE booking_status AS ENUM ('pending', 'accepted', 'rejected', 'completed', 'cancelled');
 
--- Users table
+
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     email VARCHAR(255) UNIQUE NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE users (
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_role ON users(role);
 
--- Services table (categories)
+
 CREATE TABLE services (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(255) NOT NULL,
@@ -32,7 +32,7 @@ CREATE TABLE services (
 
 CREATE INDEX idx_services_name ON services(name);
 
--- Service providers table
+
 CREATE TABLE service_providers (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
@@ -52,7 +52,7 @@ CREATE INDEX idx_service_providers_location ON service_providers(location);
 CREATE INDEX idx_service_providers_rating ON service_providers(rating);
 CREATE INDEX idx_service_providers_available ON service_providers(is_available);
 
--- Provider services (many-to-many relationship)
+
 CREATE TABLE provider_services (
     provider_id UUID NOT NULL REFERENCES service_providers(id) ON DELETE CASCADE,
     service_id UUID NOT NULL REFERENCES services(id) ON DELETE CASCADE,
@@ -62,7 +62,7 @@ CREATE TABLE provider_services (
 CREATE INDEX idx_provider_services_provider_id ON provider_services(provider_id);
 CREATE INDEX idx_provider_services_service_id ON provider_services(service_id);
 
--- Bookings table
+
 CREATE TABLE bookings (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     client_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -83,7 +83,7 @@ CREATE INDEX idx_bookings_service_id ON bookings(service_id);
 CREATE INDEX idx_bookings_status ON bookings(status);
 CREATE INDEX idx_bookings_scheduled_date ON bookings(scheduled_date);
 
--- Reviews table
+
 CREATE TABLE reviews (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     booking_id UUID NOT NULL UNIQUE REFERENCES bookings(id) ON DELETE CASCADE,
@@ -98,7 +98,7 @@ CREATE INDEX idx_reviews_booking_id ON reviews(booking_id);
 CREATE INDEX idx_reviews_provider_id ON reviews(provider_id);
 CREATE INDEX idx_reviews_client_id ON reviews(client_id);
 
--- Function to update updated_at timestamp
+
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -107,7 +107,7 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
--- Triggers to automatically update updated_at
+
 CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 

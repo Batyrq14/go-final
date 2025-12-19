@@ -9,6 +9,15 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+type IStore interface {
+	Create(ctx context.Context, user *User) error
+	GetByEmail(ctx context.Context, email string) (*User, error)
+	GetByID(ctx context.Context, id uuid.UUID) (*User, error)
+	ListProviders(limit, offset int) ([]*DetailedProvider, error)
+	UpdateProviderStatus(ctx context.Context, userID uuid.UUID, isAvailable bool) error
+	GetProviderStatus(ctx context.Context, userID uuid.UUID) (bool, error)
+}
+
 type UserStore struct {
 	db *sqlx.DB
 }
@@ -18,12 +27,35 @@ func NewUserStore(db *sqlx.DB) *UserStore {
 }
 
 func (s *UserStore) Create(ctx context.Context, user *User) error {
+	tx, err := s.db.BeginTxx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
 	query := `
 		INSERT INTO users (id, email, password_hash, role, full_name, phone, created_at, updated_at)
 		VALUES (:id, :email, :password_hash, :role, :full_name, :phone, :created_at, :updated_at)
 	`
-	_, err := s.db.NamedExecContext(ctx, query, user)
-	return err
+	_, err = tx.NamedExecContext(ctx, query, user)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if user.Role == "provider" {
+
+		spQuery := `
+			INSERT INTO service_providers (id, user_id, is_available)
+			VALUES ($1, $2, true)
+		`
+		_, err = tx.ExecContext(ctx, spQuery, uuid.New(), user.ID)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	return tx.Commit()
 }
 
 func (s *UserStore) GetByEmail(ctx context.Context, email string) (*User, error) {
@@ -32,7 +64,7 @@ func (s *UserStore) GetByEmail(ctx context.Context, email string) (*User, error)
 	err := s.db.GetContext(ctx, &user, query, email)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, nil // Return nil if not found
+			return nil, nil
 		}
 		return nil, err
 	}
@@ -72,10 +104,12 @@ func (s *UserStore) ListProviders(limit, offset int) ([]*DetailedProvider, error
 }
 
 func (s *UserStore) UpdateProviderStatus(ctx context.Context, userID uuid.UUID, isAvailable bool) error {
+
 	query := `
-		UPDATE service_providers 
-		SET is_available = $1 
-		WHERE user_id = $2
+		INSERT INTO service_providers (id, user_id, is_available)
+		VALUES (uuid_generate_v4(), $2, $1)
+		ON CONFLICT (user_id) DO UPDATE
+		SET is_available = $1
 	`
 	_, err := s.db.ExecContext(ctx, query, isAvailable, userID)
 	return err

@@ -1,7 +1,12 @@
 package main
 
 import (
+	"context"
+	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"qasynda/shared/pkg/config"
 	"qasynda/shared/pkg/db"
@@ -14,7 +19,6 @@ func main() {
 	logger.Init()
 	cfg := config.Load()
 
-	// Connect to DB
 	database, err := db.Connect(cfg.DBUrl)
 	if err != nil {
 		logger.Error("failed to connect to db", err)
@@ -24,7 +28,6 @@ func main() {
 
 	store := NewStore(database)
 
-	// RabbitMQ
 	rmq, err := NewRabbitMQProducer(cfg.RabbitMQUrl)
 	if err != nil {
 		logger.Error("failed to connect to rabbitmq", err)
@@ -32,31 +35,49 @@ func main() {
 	}
 	defer rmq.Close()
 
-	// Start consumer
-	go StartConsumer(cfg.RabbitMQUrl, store)
+	ctx, cancelWorkers := context.WithCancel(context.Background())
+	defer cancelWorkers()
 
-	// Start WS Hub
+	go StartConsumer(ctx, cfg.RabbitMQUrl, store)
+
 	hub := NewHub(store, rmq)
-	go hub.Run()
+	go hub.Run(ctx)
 
-	// Init Server
 	server := NewServer(store)
 
-	// Init Gin
 	r := gin.Default()
 
-	// Define Routes
 	r.GET("/history", server.GetHistory)
 	r.GET("/ws", func(c *gin.Context) {
 		ServeWs(hub, c.Writer, c.Request)
 	})
 
-	// Use one port for both HTTP Routes and WS
-	port := config.GetChatPort() // e.g. :50053 (will be HTTP now)
-	logger.Info("Chat Service starting HTTP/WS on " + port)
-
-	if err := r.Run(port); err != nil {
-		logger.Error("failed to serve", err)
-		os.Exit(1)
+	port := config.GetChatPort()
+	srv := &http.Server{
+		Addr:    port,
+		Handler: r,
 	}
+
+	go func() {
+		logger.Info("Chat Service starting HTTP/WS on " + port)
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			logger.Error("failed to serve", err)
+		}
+	}()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	logger.Info("Shutting down Chat Service...")
+
+	cancelWorkers()
+
+	shutdownCtx, cancelShutdown := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancelShutdown()
+
+	if err := srv.Shutdown(shutdownCtx); err != nil {
+		logger.Error("Chat Service forced to shutdown", err)
+	}
+
+	logger.Info("Chat Service exiting")
 }

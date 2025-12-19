@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"sync"
@@ -16,7 +17,7 @@ var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 	CheckOrigin: func(r *http.Request) bool {
-		return true // Allow all for demo
+		return true
 	},
 }
 
@@ -28,13 +29,13 @@ type Client struct {
 }
 
 type Hub struct {
-	clients    map[string]*Client // userID -> Client
+	clients    map[string]*Client
 	register   chan *Client
 	unregister chan *Client
 	broadcast  chan []byte
 	mu         sync.RWMutex
 	store      *Store
-	rmq        *RabbitMQProducer // We will inject this
+	rmq        *RabbitMQProducer
 }
 
 func NewHub(store *Store, rmq *RabbitMQProducer) *Hub {
@@ -42,15 +43,18 @@ func NewHub(store *Store, rmq *RabbitMQProducer) *Hub {
 		clients:    make(map[string]*Client),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
-		broadcast:  make(chan []byte), // Not used directly for P2P but logic handles it
+		broadcast:  make(chan []byte),
 		store:      store,
 		rmq:        rmq,
 	}
 }
 
-func (h *Hub) Run() {
+func (h *Hub) Run(ctx context.Context) {
 	for {
 		select {
+		case <-ctx.Done():
+			logger.Info("Chat Hub stopping...")
+			return
 		case client := <-h.register:
 			h.mu.Lock()
 			h.clients[client.userID] = client
@@ -77,14 +81,12 @@ func (h *Hub) SendPrivateMessage(senderID, receiverID, content string) {
 		CreatedAt:  time.Now(),
 	}
 
-	// 1. Send to RabbitMQ for persistence
 	go func() {
 		if err := h.rmq.PublishMessage(msg); err != nil {
 			logger.Error("failed to publish message", err)
 		}
 	}()
 
-	// 2. Send to Receiver if online
 	h.mu.RLock()
 	receiver, ok := h.clients[receiverID]
 	h.mu.RUnlock()
@@ -102,8 +104,6 @@ func (h *Hub) SendPrivateMessage(senderID, receiverID, content string) {
 		}
 	}
 
-	// Also send back to sender for confirmation/UI update if needed,
-	// but usually UI handles optimistic update.
 }
 
 func (c *Client) readPump() {
@@ -117,7 +117,6 @@ func (c *Client) readPump() {
 			break
 		}
 
-		// Expecting JSON message: { "receiver_id": "...", "content": "..." }
 		var req struct {
 			ReceiverID string `json:"receiver_id"`
 			Content    string `json:"content"`
@@ -146,7 +145,7 @@ func (c *Client) writePump() {
 }
 
 func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
-	userID := r.URL.Query().Get("user_id") // Simple auth for demo
+	userID := r.URL.Query().Get("user_id")
 	if userID == "" {
 		http.Error(w, "user_id required", http.StatusUnauthorized)
 		return

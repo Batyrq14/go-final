@@ -15,11 +15,11 @@ import (
 )
 
 type Server struct {
-	store     *UserStore
+	store     IStore
 	jwtSecret string
 }
 
-func NewServer(store *UserStore, jwtSecret string) *Server {
+func NewServer(store IStore, jwtSecret string) *Server {
 	return &Server{
 		store:     store,
 		jwtSecret: jwtSecret,
@@ -183,16 +183,8 @@ func (s *Server) ValidateToken(c *gin.Context) {
 func (s *Server) GetUser(c *gin.Context) {
 	usrIdStr := c.Param("id")
 	if usrIdStr == "" {
-		// Fallback to body query if needed or usually REST uses /users/:id
-		// For internal calls we might strictly use body in some architectures but REST implies params
-		// But let's support binding JSON for internal communication consistency if we want
-		// ACTUALLY, internal REST usually implies URL params for GET.
-		// Let's assume URL param :id
-	}
 
-	// For GetUserRequest struct compatibility, let's allow binding JSON if method is POST/PUT?
-	// But GetUser is likely GET.
-	// Let's use `c.Param("id")`.
+	}
 
 	uid, err := uuid.Parse(usrIdStr)
 	if err != nil {

@@ -6,6 +6,15 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+type IStore interface {
+	CreateService(ctx context.Context, service *Service) error
+	ListServices(ctx context.Context) ([]*Service, error)
+	CreateBooking(ctx context.Context, booking *Booking) error
+	ListBookings(ctx context.Context, userID string, role string) ([]*Booking, error)
+	UpdateBookingStatus(ctx context.Context, bookingID string, status string) error
+	GetBooking(ctx context.Context, bookingID string) (*Booking, error)
+}
+
 type Store struct {
 	db *sqlx.DB
 }
@@ -43,7 +52,14 @@ func (s *Store) ListBookings(ctx context.Context, userID string, role string) ([
 	var bookings []*Booking
 	var query string
 	if role == "provider" {
-		query = `SELECT * FROM bookings WHERE provider_id = $1 ORDER BY created_at DESC`
+
+		query = `
+			SELECT b.* 
+			FROM bookings b
+			INNER JOIN service_providers sp ON b.provider_id = sp.id
+			WHERE sp.user_id = $1 
+			ORDER BY b.created_at DESC
+		`
 	} else {
 		query = `SELECT * FROM bookings WHERE client_id = $1 ORDER BY created_at DESC`
 	}

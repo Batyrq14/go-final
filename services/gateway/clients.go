@@ -27,7 +27,6 @@ func InitClients(cfg *config.Config) *Clients {
 	}
 }
 
-// User Client
 type UserClient struct {
 	BaseURL string
 	Client  *http.Client
@@ -70,7 +69,6 @@ func (c *UserClient) GetProviderStatus(ctx context.Context, userID string) (*map
 	return doGet[map[string]interface{}](c.Client, url)
 }
 
-// Marketplace Client
 type MarketplaceClient struct {
 	BaseURL string
 	Client  *http.Client
@@ -106,7 +104,6 @@ func (c *MarketplaceClient) UpdateBookingStatus(ctx context.Context, req *models
 	return doPut[models.UpdateBookingStatusRequest, models.BookingResponse](c.Client, url, req)
 }
 
-// Chat Client
 type ChatClient struct {
 	BaseURL string
 	Client  *http.Client
@@ -122,7 +119,6 @@ func (c *ChatClient) GetHistory(ctx context.Context, req *models.GetHistoryReque
 	return doGet[models.GetHistoryResponse](c.Client, url)
 }
 
-// HTTP Helpers
 func doPost[Req, Resp any](client *http.Client, url string, req *Req) (*Resp, error) {
 	body, err := json.Marshal(req)
 	if err != nil {

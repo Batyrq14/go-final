@@ -1,15 +1,34 @@
 package main
 
 import (
+	"context"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
+	"os"
+	"os/signal"
 	"strings"
+	"syscall"
+	"time"
 
 	"qasynda/shared/pkg/auth"
 	"qasynda/shared/pkg/config"
 	"qasynda/shared/pkg/logger"
 
 	"github.com/gin-gonic/gin"
+	"golang.org/x/time/rate"
 )
+
+func RateLimitMiddleware(rps float64, burst int) gin.HandlerFunc {
+	limiter := rate.NewLimiter(rate.Limit(rps), burst)
+	return func(c *gin.Context) {
+		if !limiter.Allow() {
+			c.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{"error": "too many requests"})
+			return
+		}
+		c.Next()
+	}
+}
 
 func AuthMiddleware(cfg *config.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -41,7 +60,6 @@ func main() {
 
 	r := gin.Default()
 
-	// CORS Config
 	r.Use(func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
@@ -56,11 +74,8 @@ func main() {
 		c.Next()
 	})
 
-	// Serve Frontend
-	r.Static("/static", "./frontend/static")
-	r.StaticFile("/", "./frontend/index.html")
+	r.Use(RateLimitMiddleware(10, 20))
 
-	// Public Routes
 	api := r.Group("/api")
 	{
 		api.GET("/services", handler.GetServices)
@@ -73,11 +88,10 @@ func main() {
 		}
 	}
 
-	// Protected Routes
 	protected := api.Group("/")
 	protected.Use(AuthMiddleware(cfg))
 	{
-		protected.GET("/auth/me", handler.GetProfile) // Frontend calls /api/auth/me
+		protected.GET("/auth/me", handler.GetProfile)
 
 		protected.POST("/services", handler.CreateService)
 		protected.POST("/bookings", handler.CreateBooking)
@@ -90,8 +104,51 @@ func main() {
 		protected.GET("/chat/history", handler.GetChatHistory)
 	}
 
-	logger.Info("Gateway Service starting on " + cfg.Port)
-	if err := r.Run(":" + cfg.Port); err != nil {
-		logger.Error("failed to start gateway", err)
+	r.GET("/ws", func(c *gin.Context) {
+		target := cfg.Services.ChatUrl
+		remoteUrl, err := url.Parse(target)
+		if err != nil {
+			logger.Error("failed to parse chat url", err)
+			c.Status(http.StatusInternalServerError)
+			return
+		}
+
+		proxy := httputil.NewSingleHostReverseProxy(remoteUrl)
+		proxy.Director = func(req *http.Request) {
+			req.Header = c.Request.Header
+			req.Host = remoteUrl.Host
+			req.URL.Scheme = remoteUrl.Scheme
+			req.URL.Host = remoteUrl.Host
+			req.URL.Path = "/ws"
+		}
+
+		proxy.ServeHTTP(c.Writer, c.Request)
+	})
+
+	srv := &http.Server{
+		Addr:    ":" + cfg.Port,
+		Handler: r,
 	}
+
+	go func() {
+		logger.Info("Gateway Service starting on " + cfg.Port)
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			logger.Error("failed to start gateway", err)
+		}
+	}()
+
+	quit := make(chan os.Signal, 1)
+
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	logger.Info("Shutting down Gateway Service...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := srv.Shutdown(ctx); err != nil {
+		logger.Error("Gateway Service forced to shutdown", err)
+	}
+
+	logger.Info("Gateway Service exiting")
 }

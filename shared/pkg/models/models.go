@@ -1,6 +1,5 @@
 package models
 
-// Auth & User Models
 type LoginRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -55,7 +54,6 @@ type ListProvidersResponse struct {
 	Providers []*ProviderResponse `json:"providers"`
 }
 
-// Marketplace Models
 type CreateServiceRequest struct {
 	UserID      string  `json:"user_id"`
 	Title       string  `json:"title"`
@@ -118,7 +116,6 @@ type UpdateBookingStatusRequest struct {
 	UserID    string `json:"user_id"`
 }
 
-// Chat Models
 type GetHistoryRequest struct {
 	UserID1 string `json:"user_id_1"`
 	UserID2 string `json:"user_id_2"`

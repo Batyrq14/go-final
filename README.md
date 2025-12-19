@@ -8,18 +8,35 @@ A robust microservices-based platform connecting clients with professional servi
 
 ### 🚀 Stack
 
-*   **Backend**: Go (Golang) 1.21+, gRPC, Gin
+*   **Backend**: Go (Golang) 1.21+, REST (Gin)
 *   **Infrastructure**: Docker, PostgreSQL, Redis, RabbitMQ
-*   **Frontend**: Vanilla JS, Modern CSS (Glassmorphism), RWD
 
 ### 🏗 Architecture
 
-The platform follows a **Microservices Architecture**:
+The platform follows a **Microservices Architecture** communicating over **HTTP/JSON**:
 
-1.  **Gateway Service** (`:8080`): API Gateway & Static File Server.
-2.  **User Service** (`:50051`): Authentication & Profiles.
-3.  **Marketplace Service** (`:50052`): Services, Bookings, Providers.
-4.  **Chat Service** (`:50053`): Real-time messaging (In Progress).
+1.  **Gateway Service** (`:8080`): API Gateway, Reverse Proxy & Rate Limiter.
+2.  **User Service** (`:50051`): Authentication, Roles & Profiles.
+3.  **Marketplace Service** (`:50052`): Services, Bookings, Categories.
+4.  **Chat Service** (`:50053`): Real-time messaging with WebSocket & RabbitMQ.
+
+### 📖 API Endpoints (Gateway `:8080`)
+
+#### Public
+- `POST /api/auth/register` - Create new user
+- `POST /api/auth/login` - Get JWT token
+- `GET /api/services` - List available services
+- `GET /api/providers` - Get provider list
+
+#### Protected (Requires Bearer Token)
+- `GET /api/auth/me` - Get current user profile
+- `POST /api/services` - Create new service (Provider only)
+- `POST /api/bookings` - Book a service
+- `GET /api/bookings` - List my bookings
+- `PUT /api/bookings/:id/status` - Update booking status
+- `PUT /api/providers/status` - Toggle availability
+- `GET /api/chat/history` - Get message history
+- `WS /ws?user_id=...` - Real-time chat connection
 
 ### ⚡️ Quick Start
 
@@ -34,7 +51,7 @@ make reset-db
 Open separate terminals for each service:
 
 ```bash
-# Terminal 1: Gateway (Frontend + API)
+# Terminal 1: Gateway
 make run-gateway
 ```
 
@@ -48,31 +65,21 @@ make run-user
 make run-marketplace
 ```
 
-**3. Explore**
-Open **[http://localhost:8080](http://localhost:8080)** in your browser.
-
----
-
-### 🛠 Development Commands
-
-| Command | Description |
-| :--- | :--- |
-| `make docker-up` | Start generic infrastructure (Postgres, Redis, RabbitMQ) |
-| `make reset-db` | **Wipe** database volume & restart (Fixes connection issues) |
-| `make proto` | Regenerate gRPC protobuf code |
-| `make tidy` | Clean up Go modules |
+```bash
+# Terminal 4: Chat Service
+make run-chat
+```
 
 ### 📂 Directory Structure
 
 ```
 qasynda/
-├── frontend/        # Modern Web UI (HTML/CSS/JS)
-├── services/        # Microservices (Go)
-│   ├── gateway/     # REST API & File Server
-│   ├── user/        # gRPC User Service
-│   ├── marketplace/ # gRPC Marketplace Service
-│   └── chat/        # gRPC Chat Service
-├── shared/          # Shared Proto & Config
+├── services/        # Microservices (Go/Gin)
+│   ├── gateway/     # Entry point & Rate Limiting
+│   ├── user/        # Auth & Users
+│   ├── marketplace/ # Core Marketplace Logic
+│   └── chat/        # Messaging & RMQ
+├── shared/          # Shared Models, Auth & Libs
 └── migrations/      # SQL Migrations
 ```
 

@@ -12,10 +12,10 @@ import (
 )
 
 type Server struct {
-	store *Store
+	store IStore
 }
 
-func NewServer(store *Store) *Server {
+func NewServer(store IStore) *Server {
 	return &Server{store: store}
 }
 
@@ -29,7 +29,7 @@ func (s *Server) CreateService(c *gin.Context) {
 	id := uuid.New()
 	service := &Service{
 		ID:          id,
-		Name:        req.Title, // Mapping Title to Name
+		Name:        req.Title,
 		Description: req.Description,
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
@@ -109,7 +109,7 @@ func (s *Server) CreateBooking(c *gin.Context) {
 		ServiceID:     serviceID,
 		ScheduledDate: scheduledTime,
 		Status:        "pending",
-		DurationHours: 1.0, // Default duration
+		DurationHours: 1.0,
 		CreatedAt:     time.Now(),
 		UpdatedAt:     time.Now(),
 	}
@@ -127,18 +127,12 @@ func (s *Server) CreateBooking(c *gin.Context) {
 }
 
 func (s *Server) ListBookings(c *gin.Context) {
-	// Usually GET requests take params from Query, but our internal model uses Body for request struct.
-	// For internal service-to-service, we can POST to /bookings/list or similar.
-	// OR query params.
-	// Let's use Query params for standard REST.
+
 	userID := c.Query("user_id")
 	role := c.Query("role")
 
 	if userID == "" {
-		// Try JSON body if query is empty? (For compatibility with our gateway client)
-		// Or just stick to one. REST standard is Query params for GET.
-		// Our implementation plan client code might send body or query?
-		// Let's support both or just Query.
+
 	}
 
 	bookings, err := s.store.ListBookings(c.Request.Context(), userID, role)
@@ -157,8 +151,8 @@ func (s *Server) ListBookings(c *gin.Context) {
 			ProviderID:     b.ProviderID.String(),
 			Status:         b.Status,
 			ScheduledTime:  b.ScheduledDate.Format(time.RFC3339),
-			ServiceTitle:   "Service " + b.ServiceID.String(), // Placeholder
-			OtherPartyName: "User " + b.ClientID.String(),     // Placeholder
+			ServiceTitle:   "Service " + b.ServiceID.String(),
+			OtherPartyName: "User " + b.ClientID.String(),
 		})
 	}
 
@@ -168,7 +162,7 @@ func (s *Server) ListBookings(c *gin.Context) {
 }
 
 func (s *Server) UpdateBookingStatus(c *gin.Context) {
-	// PUT /bookings/:id/status
+
 	bookingID := c.Param("id")
 	var req models.UpdateBookingStatusRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

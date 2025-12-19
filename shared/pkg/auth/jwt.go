@@ -18,7 +18,6 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-// GenerateToken generates a JWT token for the given user
 func GenerateToken(userID, email, role, secret string, expiration time.Duration) (string, error) {
 	claims := &Claims{
 		UserID: userID,
@@ -35,7 +34,6 @@ func GenerateToken(userID, email, role, secret string, expiration time.Duration)
 	return token.SignedString([]byte(secret))
 }
 
-// ValidateToken validates a JWT token and returns the claims
 func ValidateToken(tokenString, secret string) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -54,4 +52,3 @@ func ValidateToken(tokenString, secret string) (*Claims, error) {
 
 	return nil, ErrInvalidToken
 }
-
